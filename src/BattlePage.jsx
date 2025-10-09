@@ -125,7 +125,7 @@ function BattlePage() {
     setActiveTab("output");
     setOutput("Running... ⏳");
     try {
-      const response = await fetch("http://localhost:5000/run", {
+      const response = await fetch("https://kodekshetra-server.onrender.com/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
@@ -157,7 +157,7 @@ function BattlePage() {
     setActiveTab("output");
     setOutput("Submitting... ⏳");
     try {
-      const response = await fetch("http://localhost:5000/submit", {
+      const response = await fetch("https://kodekshetra-server.onrender.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
