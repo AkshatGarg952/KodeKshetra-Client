@@ -55,7 +55,7 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
       formData.append("codeforcesId", codeforcesId);
 
 
-      const res = await fetch("http://localhost:5000/api/users/register", {
+      const res = await fetch("https://kodekshetra-server.onrender.com/api/users/register", {
         method: "POST",
         body: formData,
       });
