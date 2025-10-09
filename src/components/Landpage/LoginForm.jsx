@@ -1,12 +1,12 @@
 import React, { forwardRef, useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import { establishSocketConnection } from "../socket.js";
-import LoadingSpinner from './LoadingSpinner';
+import { useNavigate } from 'react-router-dom';
+import { establishSocketConnection } from '../socket.js';
+import LoadingSpinner from './LoadingSpinner.js';
 
 const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSwitchToRegister = () => {
@@ -23,10 +23,10 @@ const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("https://kodekshetra-server.onrender.com/api/users/login", {
-        method: "POST",
+      const res = await fetch('https://kodekshetra-server.onrender.com/api/users/login', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
@@ -34,18 +34,18 @@ const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
       const data = await res.json();
 
       if (res.ok) {
-        console.log("Login successful:");
-        sessionStorage.setItem("userId", data.oldUser._id);
-        sessionStorage.setItem("token", data.token);
+        console.log('Login successful:');
+        sessionStorage.setItem('userId', data.oldUser._id);
+        sessionStorage.setItem('token', data.token);
         establishSocketConnection();
-        navigate("/leaderboard", { replace: true });
+        navigate('/leaderboard', { replace: true });
       } else {
-        console.error("Login failed:", data.message);
-        alert(data.message || "Login failed. Please try again.");
+        console.error('Login failed:', data.message);
+        alert(data.message || 'Login failed. Please try again.');
       }
     } catch (err) {
-      console.error("Error logging in:", err);
-      alert("Network error. Please check your connection and try again.");
+      console.error('Error logging in:', err);
+      alert('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +57,6 @@ const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
         ref={ref}
         className="form-container bg-[linear-gradient(145deg,rgba(13,13,13,0.98),rgba(26,26,26,0.95))] rounded-2xl p-8 border-2 border-electric-blue shadow-[0_0_30px_rgba(0,191,255,0.4)] w-full max-w-md relative"
       >
-        {/* Close Button */}
         <button
           onClick={handleClose}
           disabled={isLoading}
@@ -82,6 +81,7 @@ const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
         <h2 className="text-3xl font-black text-text-primary mb-6 text-center font-space-grotesk">
           Login to CodeVersus
         </h2>
+        
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-jetbrains-mono text-text-secondary mb-2">
@@ -97,6 +97,7 @@ const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
               required
             />
           </div>
+          
           <div>
             <label className="block text-sm font-jetbrains-mono text-text-secondary mb-2">
               Password
@@ -111,6 +112,7 @@ const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
               required
             />
           </div>
+          
           <button
             type="submit"
             disabled={isLoading}
@@ -126,8 +128,9 @@ const LoginForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
             )}
           </button>
         </form>
+        
         <p className="text-center text-sm text-text-secondary font-jetbrains-mono mt-4">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <button
             onClick={handleSwitchToRegister}
             disabled={isLoading}
