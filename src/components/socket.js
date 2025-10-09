@@ -15,7 +15,7 @@ const establishSocketConnection = () => {
     return socket;
   }
   
-  socket = io("http://localhost:5000", {
+  socket = io("https://kodekshetra-server.onrender.com", {
     withCredentials: true,
     transports: ["websocket"],
     query: {
