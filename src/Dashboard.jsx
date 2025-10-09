@@ -95,7 +95,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/getUserDetails/${userId}`);
+        const res = await fetch(`https://kodekshetra-server.onrender.com/api/users/getUserDetails/${userId}`);
         const userDetails = await res.json();
         setbadgesdata(userDetails.badgesData);
         setDashboardState((prev) => ({
