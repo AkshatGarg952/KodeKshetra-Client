@@ -45,7 +45,7 @@ function ProfileHeader({
 
       try {
         // Use the unified endpoint with user ID
-        const response = await fetch(`http://localhost:5000/api/users/update/${userId}`, {
+        const response = await fetch(`https://kodekshetra-server.onrender.com/api/users/update/${userId}`, {
           method: 'PUT',
           body: formData,
         });
@@ -111,7 +111,7 @@ function ProfileHeader({
 
     try {
       // Use the unified endpoint with user ID
-      const response = await fetch(`http://localhost:5000/api/users/update/${userId}`, {
+      const response = await fetch(`https://kodekshetra-server.onrender.com/api/users/update/${userId}`, {
         method: 'PUT',
         body: formData,
       });
