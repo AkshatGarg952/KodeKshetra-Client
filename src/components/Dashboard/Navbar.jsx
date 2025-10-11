@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrophy, faDoorOpen, faPlusCircle, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import LogoutModal from '../Landpage/LogoutModal'; // import your modal
+import LogoutModal from './Logout.jsx';
 
 function Navbar({ showModal, showNotification }) {
   const navigate = useNavigate();
