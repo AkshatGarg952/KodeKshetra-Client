@@ -1,7 +1,6 @@
 import React, { forwardRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import {establishSocketConnection} from "../socket.js";
-
+import { establishSocketConnection } from "../socket.js";
 
 const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
   const navigate = useNavigate();
@@ -12,18 +11,18 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
   const [password, setPassword] = useState("");
   const [leetcodeId, setLeetcodeId] = useState("");
   const [codeforcesId, setCodeforcesId] = useState("");
-
+  const [loading, setLoading] = useState(false); // 🔹 New
 
   const handleSwitchToLogin = () => {
-    setShowRegister(false);
-    setShowLogin(true);
+    if (!loading) {
+      setShowRegister(false);
+      setShowLogin(true);
+    }
   };
-
 
   const handleClose = () => {
-    setShowRegister(false);
+    if (!loading) setShowRegister(false);
   };
-
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -35,15 +34,13 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
     }
   };
 
-
   const handleImageClick = () => {
     document.getElementById('profile-upload').click();
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
 
     try {
       const formData = new FormData();
@@ -54,32 +51,30 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
       formData.append("leetcodeId", leetcodeId);
       formData.append("codeforcesId", codeforcesId);
 
-
       const res = await fetch("https://kodekshetra-server.onrender.com/api/users/register", {
         method: "POST",
         body: formData,
       });
 
-
       const data = await res.json();
 
-
       if (res.ok) {
-        console.log("Register successful:", data);
-        setShowRegister(false);
-        setShowLogin(true);
         sessionStorage.setItem("userId", data.n._id);
         sessionStorage.setItem("token", data.token);
         establishSocketConnection();
+        setShowRegister(false);
+        setShowLogin(true);
         navigate("/leaderboard", { replace: true });
       } else {
-        console.error("Register failed:", data.message);
+        alert(data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
       console.error("Error registering:", err);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
-
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[2000] flex items-center justify-center px-4 py-4">
@@ -87,10 +82,18 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
         ref={ref}
         className="relative form-container bg-[linear-gradient(145deg,rgba(13,13,13,0.98),rgba(26,26,26,0.95))] rounded-2xl p-8 border-2 border-electric-blue shadow-[0_0_30px_rgba(0,191,255,0.4)] w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-hide"
       >
+        {/* Spinner overlay */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl z-20">
+            <div className="w-12 h-12 border-4 border-t-transparent border-cyan-400 rounded-full animate-spin"></div>
+          </div>
+        )}
+
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-red-700 border-2 border-red-500 flex items-center justify-center group hover:scale-110 hover:shadow-[0_0_20px_rgba(239,68,68,0.8)] transition-all duration-300 z-10"
+          disabled={loading}
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-red-700 border-2 border-red-500 flex items-center justify-center group hover:scale-110 hover:shadow-[0_0_20px_rgba(239,68,68,0.8)] transition-all duration-300 disabled:opacity-50"
           aria-label="Close"
         >
           <svg
@@ -99,22 +102,15 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2.5}
-              d="M6 18L18 6M6 6l12 12"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-
 
         <h2 className="text-3xl font-black text-text-primary mb-6 text-center font-space-grotesk">
           Register for CodeVersus
         </h2>
 
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className={`space-y-6 transition-all duration-300 ${loading ? "blur-sm pointer-events-none" : ""}`} onSubmit={handleSubmit}>
           {/* Profile Picture */}
           <div className="flex justify-center mb-6">
             <div className="relative">
@@ -133,21 +129,13 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
                   </div>
                 )}
               </div>
-              <input
-                id="profile-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
+              <input id="profile-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" disabled={loading} />
               {imagePreview && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setImagePreview(null);
-                    setProfileImage(null);
-                  }}
+                  onClick={() => { setImagePreview(null); setProfileImage(null); }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-red-600 transition-colors"
+                  disabled={loading}
                 >
                   ×
                 </button>
@@ -155,91 +143,35 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
             </div>
           </div>
 
-
           {/* Username */}
-          <div>
-            <label className="block text-sm font-jetbrains-mono text-text-secondary mb-2">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors"
-              placeholder="Choose a username"
-              required
-            />
-          </div>
-
+          <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" required disabled={loading}
+            className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors" />
 
           {/* Email */}
-          <div>
-            <label className="block text-sm font-jetbrains-mono text-text-secondary mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required disabled={loading}
+            className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors" />
 
           {/* Password */}
-          <div>
-            <label className="block text-sm font-jetbrains-mono text-text-secondary mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors"
-              placeholder="Create a password"
-              required
-            />
-          </div>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required disabled={loading}
+            className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors" />
 
+          {/* LeetCode & Codeforces */}
+          <input type="text" value={leetcodeId} onChange={e => setLeetcodeId(e.target.value)} placeholder="LeetCode ID (optional)" disabled={loading}
+            className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors" />
 
-          {/* LeetCode ID */}
-          <div>
-            <label className="block text-sm font-jetbrains-mono text-text-secondary mb-2">LeetCode ID (optional)</label>
-            <input
-              type="text"
-              value={leetcodeId}
-              onChange={(e) => setLeetcodeId(e.target.value)}
-              className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors"
-              placeholder="Your LeetCode username"
-            />
-          </div>
-
-
-          {/* Codeforces ID */}
-          <div>
-            <label className="block text-sm font-jetbrains-mono text-text-secondary mb-2">Codeforces ID (optional)</label>
-            <input
-              type="text"
-              value={codeforcesId}
-              onChange={(e) => setCodeforcesId(e.target.value)}
-              className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors"
-              placeholder="Your Codeforces handle"
-            />
-          </div>
-
+          <input type="text" value={codeforcesId} onChange={e => setCodeforcesId(e.target.value)} placeholder="Codeforces ID (optional)" disabled={loading}
+            className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors" />
 
           {/* Submit */}
-          <button
-            type="submit"
-            className="w-full px-6 py-3 rounded-lg font-bold text-lg text-white bg-gradient-fire shadow-[0_8px_25px_rgba(255,69,0,0.4)] hover:-translate-y-1 hover:scale-105 hover:shadow-[0_15px_40px_rgba(255,215,0,0.6)] transition-all duration-300"
-          >
+          <button type="submit" disabled={loading} 
+            className="w-full px-6 py-3 rounded-lg font-bold text-lg text-white bg-gradient-fire shadow-[0_8px_25px_rgba(255,69,0,0.4)] hover:-translate-y-1 hover:scale-105 hover:shadow-[0_15px_40px_rgba(255,215,0,0.6)] transition-all duration-300 disabled:opacity-50">
             Register
           </button>
         </form>
 
-
         <p className="text-center text-sm text-text-secondary font-jetbrains-mono mt-4">
           Already have an account?{" "}
-          <button
-            onClick={handleSwitchToLogin}
-            className="text-cyber-cyan hover:text-neon-green transition-colors duration-300"
-          >
+          <button onClick={handleSwitchToLogin} className="text-cyber-cyan hover:text-neon-green transition-colors duration-300" disabled={loading}>
             Login here
           </button>
         </p>
@@ -247,6 +179,5 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
     </div>
   );
 });
-
 
 export default RegisterForm;
