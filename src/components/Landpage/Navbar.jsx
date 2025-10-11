@@ -71,7 +71,7 @@ function Navbar({ setShowLogin, setShowRegister }) {
     <nav className="fixed top-0 w-full bg-black/95 backdrop-blur-2xl border-b-2 border-[var(--gradient-fire)] z-[1000] py-5 animate-[navSlide_1s_ease_forwards]">
       <div className="max-w-7xl mx-auto px-8 flex justify-between items-center">
         <div className="text-3xl font-extrabold bg-gradient-plasma bg-clip-text text-transparent animate-[logoGlow_4s_ease-in-out_infinite] tracking-tight">
-          CodeVersus
+          KodeKshetra
         </div>
         <ul className="flex list-none gap-12 items-center">
           {navItems.map((item, index) => (
