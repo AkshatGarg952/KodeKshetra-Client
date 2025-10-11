@@ -68,10 +68,10 @@ function Navbar({ showModal, showNotification }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex justify-between items-center">
         <div className="logo flex items-center text-3xl font-extrabold tracking-tight">
           <span className="logo-code bg-gradient-logo-code bg-clip-text text-transparent animate-logoCodeGlow">
-            Code
+            Kode
           </span>
           <span className="logo-versus bg-gradient-logo-versus bg-clip-text text-transparent animate-logoVersusGlow">
-            Versus
+            Kshetra
           </span>
         </div>
         <div className="nav-actions flex gap-4">
