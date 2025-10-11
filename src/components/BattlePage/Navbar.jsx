@@ -38,7 +38,7 @@ function Navbar({ addNotification, timeRemaining, battleId, roomId}) {
       <div className="navbar-left">
         <div className="logo relative flex items-center">
           <span className="logo-text text-2xl font-extrabold bg-gradient-plasma bg-clip-text text-transparent uppercase tracking-wider">
-            CodeVersus
+            KodeKshetra
           </span>
           <div className="logo-glow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-plasma rounded-full opacity-20 blur-[10px] animate-logo-glow-alt z-[1]"></div>
         </div>
