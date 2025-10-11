@@ -27,7 +27,7 @@ const Navbar = ({ showNotification }) => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-8 flex justify-between items-center py-3 sm:py-5">
           <div className="text-2xl sm:text-3xl font-extrabold gradient-text-leaderboard animate-logo-glow tracking-tight">
-            CodeVersus
+            KodeKshetra
           </div>
           <div className="flex gap-4 sm:gap-6">
             <button
