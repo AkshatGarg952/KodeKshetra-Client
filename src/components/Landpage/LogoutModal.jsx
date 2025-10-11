@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaSignOutAlt } from 'react-icons/fa';
 
-const LogoutModal = ({ setShowModal, showNotification }) => {
+const LogoutModal = ({ setShowModal }) => {
+  const [loading, setLoading] = useState(false); // 🔹 loading state
+
   const closeModal = () => {
-    setShowModal(false);
+    if (!loading) setShowModal(false); // prevent closing while logging out
   };  
 
-  
-
   const handleLogout = async () => {
+    setLoading(true);
     try {
-      closeModal();
       const token = sessionStorage.getItem("token");
 
       const res = await fetch("https://kodekshetra-server.onrender.com/api/users/logout", {
@@ -22,9 +22,9 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
       });
 
       if (!res.ok) {
-        // If backend returns an error response
         throw new Error("Failed to logout");
       }
+
       sessionStorage.removeItem("userId");
       sessionStorage.removeItem("token");
 
@@ -32,9 +32,9 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
     } catch (error) {
       alert("Cannot logout. Please try again.");
       console.error("Logout failed:", error);
+      setLoading(false);
     }
   };
-
 
   return (
     <div
@@ -42,9 +42,16 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
       onClick={closeModal}
     >
       <div
-        className="bg-[linear-gradient(145deg,rgba(30,41,59,0.95),rgba(13,13,13,0.9))] rounded-2xl p-4 sm:p-8 border-2 border-battle-crimson shadow-[0_20px_60px_rgba(239,68,68,0.3)] text-center max-w-[90%] sm:max-w-md animate-[scaleIn_0.3s_ease]"
+        className={`relative bg-[linear-gradient(145deg,rgba(30,41,59,0.95),rgba(13,13,13,0.9))] rounded-2xl p-4 sm:p-8 border-2 border-battle-crimson shadow-[0_20px_60px_rgba(239,68,68,0.3)] text-center max-w-[90%] sm:max-w-md animate-[scaleIn_0.3s_ease] ${loading ? "blur-sm pointer-events-none" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Spinner overlay */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl z-20">
+            <div className="w-12 h-12 border-4 border-t-transparent border-cyan-400 rounded-full animate-spin"></div>
+          </div>
+        )}
+
         <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-battle-crimson/20 flex items-center justify-center mx-auto mb-4 sm:mb-6 text-battle-crimson text-3xl sm:text-4xl">
           <FaSignOutAlt />
         </div>
@@ -54,19 +61,22 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
         </p>
         <div className="flex gap-4 justify-center">
           <button
-            className="px-4 sm:px-6 py-2 sm:py-3 border-2 border-text-muted bg-transparent text-text-secondary rounded-xl font-space transition-all duration-300 hover:bg-text-muted/20 text-sm sm:text-base"
+            className="px-4 sm:px-6 py-2 sm:py-3 border-2 border-text-muted bg-transparent text-text-secondary rounded-xl font-space transition-all duration-300 hover:bg-text-muted/20 text-sm sm:text-base disabled:opacity-50"
             onClick={closeModal}
+            disabled={loading}
           >
             Cancel
           </button>
           <button
-            className="px-4 sm:px-6 py-2 sm:py-3 border-2 border-battle-crimson bg-battle-crimson text-white rounded-xl font-space transition-all duration-300 hover:bg-battle-crimson/80 text-sm sm:text-base"
+            className="px-4 sm:px-6 py-2 sm:py-3 border-2 border-battle-crimson bg-battle-crimson text-white rounded-xl font-space transition-all duration-300 hover:bg-battle-crimson/80 text-sm sm:text-base disabled:opacity-50"
             onClick={handleLogout}
+            disabled={loading}
           >
             Logout
           </button>
         </div>
       </div>
+
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; }
