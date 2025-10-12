@@ -83,9 +83,8 @@ npm run dev
 | Component | Technology |
 |-----------|------------|
 | **Frontend** | React.js + Vite |
-| **Styling** | TailwindCSS + Framer Motion |
+| **Styling** | TailwindCSS |
 | **Realtime** | Socket.io-client |
-| **State Management** | React Context API |
 | **Deployment** | Vercel |
 
 ---
@@ -95,17 +94,6 @@ npm run dev
 | Landing Page | Battle Arena | Dashboard | Leaderboard |
 |:------------:|:------------:|:---------:|:-----------:|
 | ![Landing](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255700/Screenshot_2025-10-12_130014_qg3et8.png) | ![Battle](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255745/Screenshot_2025-10-12_132438_gg7omj.png) | ![Dashboard](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255946/Screenshot_2025-10-12_132846_vo5bjv.png) | ![Leaderboard](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255937/Screenshot_2025-10-12_132832_iijq3e.png) |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork this repo
-2. Create a feature branch (`git checkout -b feature-name`)
-3. Commit and push
-4. Open a Pull Request 🚀
 
 ---
 
