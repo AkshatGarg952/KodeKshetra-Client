@@ -1,12 +1,3 @@
-
----
-
-## 💻 **README for `KodeKshetra-Client`**
-
-Save this as:  
-📄 `KodeKshetra-Client/README.md`
-
-```markdown
 # ⚔️ KodeKshetra (Client)
 
 > 🎮 Frontend for the real-time coding battle platform — built with **React.js**, **TailwindCSS**, and **Socket.io**.
@@ -22,47 +13,49 @@ Save this as:
 ## 🌟 Overview
 
 The **KodeKshetra Client** provides a seamless interface for users to battle friends or random opponents in **real-time DSA/CP duels**.  
-It’s designed with performance, interactivity, and gamification in mind — featuring badges, leaderboards, heatmaps, and beautiful animations.
+It's designed with performance, interactivity, and gamification in mind — featuring badges, leaderboards, heatmaps, and beautiful animations.
 
 ---
 
 ## 💎 Features
 
-- ⚔️ Real-time 1v1 Coding Battles  
-- 💻 Built-in Code Editor (Judge0 backend)  
-- 🧠 AI-integrated test evaluation (via Hidden Forces service)  
-- 🏅 Badge & XP visualization  
-- 📊 Leaderboards (24-hour & 7-day)  
-- 🔥 Heatmap for 90-day activity  
-- 👤 Dashboard with streaks, stats, and profile  
-- 🎨 Animated UI using Framer Motion  
-- ⚙️ Responsive & fast (Vite + TailwindCSS)
+- ⚔️ **Real-time 1v1 Coding Battles** — Instant matchmaking and live duels  
+- 💻 **Built-in Code Editor** — Powered by Judge0 backend  
+- 🧠 **AI-integrated Test Evaluation** — Via Hidden Forces service  
+- 🏅 **Badge & XP Visualization** — Track your achievements  
+- 📊 **Leaderboards** — Rankings for 24-hour & 7-day periods  
+- 🔥 **90-Day Heatmap** — Visual activity tracker  
+- 👤 **Dashboard** — View streaks, stats, and profile  
+- 🎨 **Animated UI** — Smooth transitions with Framer Motion  
+- ⚙️ **Responsive & Fast** — Built with Vite + TailwindCSS
 
 ---
 
 ## 🏗️ Folder Structure
 
+```
 KodeKshetra-Client/
 │
 ├── src/
-│ ├── components/
-│ │ ├── BattlePage/
-│ │ ├── Dashboard/
-│ │ ├── Landpage/
-│ │ ├── Leaderboard/
-│ │ └── common/
-│ ├── context/
-│ │ ├── NotificationContext.jsx
-│ │ └── ProblemContext.jsx
-│ ├── socket.js
-│ ├── App.jsx
-│ ├── main.jsx
-│ └── index.css
+│   ├── components/
+│   │   ├── BattlePage/
+│   │   ├── Dashboard/
+│   │   ├── Landpage/
+│   │   ├── Leaderboard/
+│   │   └── common/
+│   ├── context/
+│   │   ├── NotificationContext.jsx
+│   │   └── ProblemContext.jsx
+│   ├── socket.js
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
 │
 ├── public/
 ├── package.json
-└── tailwind.config.js
-
+├── tailwind.config.js
+└── README.md
+```
 
 ---
 
@@ -76,40 +69,56 @@ cd KodeKshetra-Client
 # Install dependencies
 npm install
 
-# Create .env file
+# Create .env file with the following variable
 VITE_SERVER_URL=https://kodekshetra-server.onrender.com
 
 # Start the app
 npm run dev
+```
 
-🧱 Tech Stack
+---
 
-Frontend: React.js + Vite
+## 🧱 Tech Stack
 
-Styling: TailwindCSS + Framer Motion
+| Component | Technology |
+|-----------|------------|
+| **Frontend** | React.js + Vite |
+| **Styling** | TailwindCSS + Framer Motion |
+| **Realtime** | Socket.io-client |
+| **State Management** | React Context API |
+| **Deployment** | Vercel |
 
-Realtime: Socket.io-client
+---
 
-State Management: React Context API
+## 📸 Screenshots
 
-Deployment: Vercel
-
-| Landing Page                                    | Battle Arena                                   | Dashboard                                         | Leaderboard                                         |
-| ----------------------------------------------- | ---------------------------------------------- | ------------------------------------------------- | --------------------------------------------------- |
+| Landing Page | Battle Arena | Dashboard | Leaderboard |
+|:------------:|:------------:|:---------:|:-----------:|
 | ![Landing](https://via.placeholder.com/250x140) | ![Battle](https://via.placeholder.com/250x140) | ![Dashboard](https://via.placeholder.com/250x140) | ![Leaderboard](https://via.placeholder.com/250x140) |
 
-📜 License
+---
 
-Licensed under the MIT License.
+## 🤝 Contributing
 
-💡 Acknowledgements
+Contributions are welcome!
 
-Judge0
+1. Fork this repo
+2. Create a feature branch (`git checkout -b feature-name`)
+3. Commit and push
+4. Open a Pull Request 🚀
 
-Vercel
+---
 
-TailwindCSS
+## 📜 License
 
-React.js
+Licensed under the **MIT License**.
 
-Socket.io
+---
+
+## 💡 Acknowledgements
+
+- [Judge0](https://judge0.com/)
+- [Vercel](https://vercel.com/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [React.js](https://react.dev/)
+- [Socket.io](https://socket.io/)
