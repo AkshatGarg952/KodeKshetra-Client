@@ -94,7 +94,7 @@ npm run dev
 
 | Landing Page | Battle Arena | Dashboard | Leaderboard |
 |:------------:|:------------:|:---------:|:-----------:|
-| ![Landing](https://via.placeholder.com/250x140) | ![Battle](https://via.placeholder.com/250x140) | ![Dashboard](https://via.placeholder.com/250x140) | ![Leaderboard](https://via.placeholder.com/250x140) |
+| ![Landing](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255700/Screenshot_2025-10-12_130014_qg3et8.png) | ![Battle](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255745/Screenshot_2025-10-12_132438_gg7omj.png) | ![Dashboard](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255946/Screenshot_2025-10-12_132846_vo5bjv.png) | ![Leaderboard](https://res.cloudinary.com/dnd6asdiw/image/upload/v1760255937/Screenshot_2025-10-12_132832_iijq3e.png) |
 
 ---
 
