@@ -15,17 +15,21 @@ const LeaderboardTable = ({ leaderboardState, setLeaderboardState, showNotificat
         const res = await fetch(
           `${SERVER_URL}/leaderboard/${currentFilter}/${currentPage}`
         );
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to load leaderboard data.");
+        }
 
         setLeaderboardState((prev) => ({
           ...prev,
           isLoading: false,
-          leaderboardData: data.data || [],
+          leaderboardData: Array.isArray(data.data) ? data.data : [],
           isNextPage: data.isNextPage || false,
         }));
       } catch (err) {
         console.error("Error fetching leaderboard:", err);
-        showNotification("Failed to load leaderboard data.", "error");
+        showNotification(err.message || "Failed to load leaderboard data.", "error");
 
         setLeaderboardState((prev) => ({ ...prev, isLoading: false }));
       }

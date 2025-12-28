@@ -7,6 +7,9 @@ const LeaderboardEntry = ({ player, animationIndex }) => {
     2: 'bg-[linear-gradient(135deg,rgba(148,163,184,0.15),rgba(6,182,212,0.1))] border-2 border-rank-silver shadow-[0_0_30px_rgba(148,163,184,0.3)]',
     3: 'bg-[linear-gradient(135deg,rgba(205,127,50,0.15),rgba(184,115,51,0.1))] border-2 border-rank-bronze shadow-[0_0_30px_rgba(205,127,50,0.3)]',
   };
+  const streak = Number.isFinite(Number(player.currentStreak))
+    ? Number(player.currentStreak)
+    : 0;
 
   return (
     <div
@@ -69,13 +72,13 @@ const LeaderboardEntry = ({ player, animationIndex }) => {
         <div className="text-xs text-text-muted uppercase tracking-wider">Battle Points</div>
       </div>
 
-      {/* Streak (placeholder for now) */}
+      {/* Streak */}
       <div className="flex flex-col items-center gap-1">
         <div className="flex items-center gap-2 text-base sm:text-lg font-extrabold text-streak-orange">
           <FaFire className="animate-fire-flicker" />
-          12
+          {streak}
         </div>
-        <div className="text-xs text-text-muted uppercase tracking-wider">Day Streak</div>
+        <div className="text-xs text-text-muted uppercase tracking-wider">Current Streak</div>
       </div>
 
       {/* Shine hover effect */}
