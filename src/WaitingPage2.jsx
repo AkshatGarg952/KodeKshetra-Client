@@ -2,13 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faCheckCircle, faCircleNotch, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { socket } from "./components/socket.js";
+import { establishSocketConnection } from "./components/socket.js";
 import "./index.css";
 
 const WaitingPage2 = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const hasJoinedQueue = useRef(false);
+  const socketRef = useRef(null);
 
   const { mode, topic } = location.state || {};
   const userId = sessionStorage.getItem("userId");
@@ -20,6 +21,14 @@ const WaitingPage2 = () => {
       navigate("/dashboard", { replace: true });
       return;
     }
+
+    const activeSocket = establishSocketConnection();
+    if (!activeSocket) {
+      alert("Unable to connect to matchmaking right now. Please log in again.");
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+    socketRef.current = activeSocket;
 
     const handleBattleStart = ({
       question,
@@ -61,25 +70,45 @@ const WaitingPage2 = () => {
       navigate("/dashboard", { replace: true });
     };
 
-    socket.on("battleStart", handleBattleStart);
-    socket.on("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
-    socket.on("matchmakingError", handleMatchmakingError);
+    const handleConnectError = () => {
+      alert("Matchmaking connection dropped. Please try joining queue again.");
+      navigate("/dashboard", { replace: true });
+    };
 
+    activeSocket.on("battleStart", handleBattleStart);
+    activeSocket.on("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
+    activeSocket.on("matchmakingError", handleMatchmakingError);
+    activeSocket.on("connect_error", handleConnectError);
+
+    let onConnectJoin = null;
     if (!hasJoinedQueue.current) {
-      socket.emit("joinQueue", { userId, mode, topic });
-      hasJoinedQueue.current = true;
+      const emitJoinQueue = () => {
+        activeSocket.emit("joinQueue", { userId, mode, topic });
+        hasJoinedQueue.current = true;
+      };
+
+      if (activeSocket.connected) {
+        emitJoinQueue();
+      } else {
+        onConnectJoin = emitJoinQueue;
+        activeSocket.once("connect", onConnectJoin);
+      }
     }
 
     return () => {
-      socket.off("battleStart", handleBattleStart);
-      socket.off("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
-      socket.off("matchmakingError", handleMatchmakingError);
+      activeSocket.off("battleStart", handleBattleStart);
+      activeSocket.off("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
+      activeSocket.off("matchmakingError", handleMatchmakingError);
+      activeSocket.off("connect_error", handleConnectError);
+      if (onConnectJoin) {
+        activeSocket.off("connect", onConnectJoin);
+      }
     };
   }, [navigate, userId, mode, topic]);
 
   const handleCancel = () => {
     if (window.confirm('Are you sure you want to cancel matchmaking?')) {
-      socket.emit("cancelMatchmaking", { userId, mode, topic });
+      socketRef.current?.emit("cancelMatchmaking", { userId, mode, topic });
     }
   };
 

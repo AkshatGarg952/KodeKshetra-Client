@@ -7,22 +7,47 @@ const establishSocketConnection = () => {
   const userId = sessionStorage.getItem("userId");
 
   if (!userId) {
-    return socket;
+    if (socket) {
+      socket.disconnect();
+      socket = null;
+    }
+    return null;
   }
 
-  if (socket && socket.connected) {
-    return socket;
+  const shouldCreateNewSocket =
+    !socket || socket.io?.opts?.query?.userId !== userId;
+
+  if (shouldCreateNewSocket) {
+    if (socket) {
+      socket.disconnect();
+    }
+
+    socket = io(SERVER_URL, {
+      reconnection: true,
+      transports: ["websocket", "polling"],
+      withCredentials: true,
+      timeout: 20000,
+      query: {
+        userId,
+      },
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error?.message || error);
+    });
+  } else if (!socket.connected) {
+    socket.connect();
   }
 
-  socket = io(SERVER_URL, {
-    reconnection: true,
-    transports: ["websocket"],
-    query: {
-      userId: userId,
-    },
-  });
+  if (!socket) {
+    return null;
+  }
 
   window.socket = socket;
+
+  if (socket.connected) {
+    return socket;
+  }
 
   return socket;
 };
