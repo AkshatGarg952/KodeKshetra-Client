@@ -13,7 +13,7 @@ function BattlePage() {
 
   const [parentCode, setParentCode] = useState("");
   const [parentLanguage, setParentLanguage] = useState("python");
-  
+
   // --- Persistent battle and room data ---
   const getInitialBattle = () =>
     location.state?.battle ||
@@ -33,7 +33,7 @@ function BattlePage() {
     const saved = sessionStorage.getItem("userTimer");
     return saved ? JSON.parse(saved) : 1800;
   });
-  
+
   const [isWaiting, setIsWaiting] = useState(() => {
     return sessionStorage.getItem("isWaiting") === "true";
   });
@@ -73,7 +73,7 @@ function BattlePage() {
     intervalRef.current = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          const battleDetails = { battleId: battle.battleId, timeRemaining: 0, language:parentLanguage };
+          const battleDetails = { battleId: battle.battleId, timeRemaining: 0, language: parentLanguage };
           socket.emit("battleEnded", { battleDetails, userId, code: parentCode, roomId });
           setIsWaiting(true);
           sessionStorage.setItem("isWaiting", "true");
@@ -114,7 +114,7 @@ function BattlePage() {
 
   // --- Helper: Emit battle ended ---
   const emitBattleEnded = (code, language) => {
-    const battleDetails = { battleId: battle.battleId, timeRemaining:timeRemaining, language:language };
+    const battleDetails = { battleId: battle.battleId, timeRemaining: timeRemaining, language: language };
     socket.emit("battleEnded", { battleDetails, userId, code, roomId });
     setIsWaiting(true);
     sessionStorage.setItem("isWaiting", "true");
@@ -125,7 +125,7 @@ function BattlePage() {
     setActiveTab("output");
     setOutput("Running... ⏳");
     try {
-      const response = await fetch("https://kodekshetra-server.onrender.com/run", {
+      const response = await fetch("http://localhost:5000/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
@@ -157,7 +157,7 @@ function BattlePage() {
     setActiveTab("output");
     setOutput("Submitting... ⏳");
     try {
-      const response = await fetch("https://kodekshetra-server.onrender.com/submit", {
+      const response = await fetch("http://localhost:5000/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
@@ -187,7 +187,7 @@ function BattlePage() {
   // --- Helper: Determine battle outcome ---
   const getBattleOutcome = () => {
     if (!battleNote) return "waiting";
-    
+
     const note = battleNote.toLowerCase();
     if (note === "won" || note.includes("won")) return "won";
     if (note === "loss" || note.includes("loss")) return "loss";
@@ -314,24 +314,21 @@ function BattlePage() {
     };
 
     return (
-      <div 
-        className={`fixed inset-0 bg-black flex items-center justify-center z-50 transition-all duration-500 ${
-          showModal ? 'bg-opacity-70' : 'bg-opacity-0'
-        }`}
+      <div
+        className={`fixed inset-0 bg-black flex items-center justify-center z-50 transition-all duration-500 ${showModal ? 'bg-opacity-70' : 'bg-opacity-0'
+          }`}
         style={{
           backdropFilter: showModal ? 'blur(10px)' : 'blur(0px)',
           WebkitBackdropFilter: showModal ? 'blur(10px)' : 'blur(0px)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-12 rounded-3xl shadow-2xl max-w-2xl w-full mx-4 text-center border-2 ${
-          outcome === 'won' ? 'border-green-500 shadow-green-500/50' :
-          outcome === 'loss' ? 'border-red-500 shadow-red-500/50' :
-          outcome === 'draw' ? 'border-yellow-500 shadow-yellow-500/50' :
-          'border-matrix-green shadow-matrix-green/50'
-        } transform transition-all duration-500 ${
-          showModal ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
-        }`}>
+        <div className={`relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-12 rounded-3xl shadow-2xl max-w-2xl w-full mx-4 text-center border-2 ${outcome === 'won' ? 'border-green-500 shadow-green-500/50' :
+            outcome === 'loss' ? 'border-red-500 shadow-red-500/50' :
+              outcome === 'draw' ? 'border-yellow-500 shadow-yellow-500/50' :
+                'border-matrix-green shadow-matrix-green/50'
+          } transform transition-all duration-500 ${showModal ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+          }`}>
           {renderContent()}
         </div>
       </div>
@@ -347,10 +344,9 @@ function BattlePage() {
         battleId={battle.battleId}
         roomId={roomId}
       />
-      <div 
-        className={`main-container flex h-[calc(100vh-70px)] gap-[2px] bg-transparent overflow-hidden ${
-          (isWaiting || battleNote) ? 'pointer-events-none blur-sm' : ''
-        }`}
+      <div
+        className={`main-container flex h-[calc(100vh-70px)] gap-[2px] bg-transparent overflow-hidden ${(isWaiting || battleNote) ? 'pointer-events-none blur-sm' : ''
+          }`}
       >
         <QuestionPanel
           problem={problem}
@@ -440,7 +436,7 @@ const Fireworks = () => {
           this.y -= 5;
           this.trail.push({ x: this.x, y: this.y, alpha: 1 });
           if (this.trail.length > 10) this.trail.shift();
-          
+
           if (this.y <= this.targetY) {
             this.explode();
           }
@@ -465,7 +461,7 @@ const Fireworks = () => {
             ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
             ctx.fill();
           });
-          
+
           // Draw rocket
           ctx.globalAlpha = 1;
           ctx.fillStyle = this.color;
@@ -559,7 +555,7 @@ const FallingTears = () => {
         gradient.addColorStop(0, `rgba(100, 149, 237, 0)`);
         gradient.addColorStop(0.5, `rgba(100, 149, 237, ${this.opacity})`);
         gradient.addColorStop(1, `rgba(100, 149, 237, ${this.opacity * 0.5})`);
-        
+
         ctx.strokeStyle = gradient;
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
@@ -660,11 +656,11 @@ const SparkleEffect = () => {
         ctx.globalAlpha = opacity;
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
-        
+
         ctx.fillStyle = this.color;
         ctx.shadowBlur = 15;
         ctx.shadowColor = this.color;
-        
+
         ctx.beginPath();
         for (let i = 0; i < 5; i++) {
           const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
@@ -682,7 +678,7 @@ const SparkleEffect = () => {
         }
         ctx.closePath();
         ctx.fill();
-        
+
         ctx.restore();
       }
     }

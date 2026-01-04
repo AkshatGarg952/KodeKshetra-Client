@@ -12,7 +12,7 @@ const LeaderboardTable = ({ leaderboardState, setLeaderboardState, showNotificat
         setLeaderboardState((prev) => ({ ...prev, isLoading: true }));
 
         const res = await fetch(
-          `https://kodekshetra-server.onrender.com/leaderboard/${currentFilter}/${currentPage}`
+          `http://localhost:5000/leaderboard/${currentFilter}/${currentPage}`
         );
         const data = await res.json();
         console.log("Fetched leaderboard:", data);

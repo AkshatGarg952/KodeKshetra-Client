@@ -9,8 +9,8 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
       closeModal();
       const token = sessionStorage.getItem("token");
 
-      const res = await fetch("https://kodekshetra-server.onrender.com/api/users/logout", {
-        method: "GET",
+      const res = await fetch("http://localhost:5000/api/users/logout", {
+        method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",

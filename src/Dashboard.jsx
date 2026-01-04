@@ -28,33 +28,33 @@ const initialState = {
 
 
 function Dashboard() {
-  if(sessionStorage.getItem("userTimer")){
-     sessionStorage.removeItem("userTimer");
+  if (sessionStorage.getItem("userTimer")) {
+    sessionStorage.removeItem("userTimer");
   }
-  if(sessionStorage.getItem("python")){
-     sessionStorage.removeItem("python");
+  if (sessionStorage.getItem("python")) {
+    sessionStorage.removeItem("python");
   }
-  if(sessionStorage.getItem("java")){
-     sessionStorage.removeItem("java");
+  if (sessionStorage.getItem("java")) {
+    sessionStorage.removeItem("java");
   }
-  if(sessionStorage.getItem("cpp")){
-     sessionStorage.removeItem("cpp");
+  if (sessionStorage.getItem("cpp")) {
+    sessionStorage.removeItem("cpp");
   }
-  if(sessionStorage.getItem("battleData")){
-     sessionStorage.removeItem("battleData");
+  if (sessionStorage.getItem("battleData")) {
+    sessionStorage.removeItem("battleData");
   }
-  if(sessionStorage.getItem("isWaiting")){
-     sessionStorage.removeItem("isWaiting");
+  if (sessionStorage.getItem("isWaiting")) {
+    sessionStorage.removeItem("isWaiting");
   }
-  if(sessionStorage.getItem("battleResultNote")){
-     sessionStorage.removeItem("battleResultNote");
+  if (sessionStorage.getItem("battleResultNote")) {
+    sessionStorage.removeItem("battleResultNote");
   }
-  if(sessionStorage.getItem("roomId")){
-     sessionStorage.removeItem("roomId");
+  if (sessionStorage.getItem("roomId")) {
+    sessionStorage.removeItem("roomId");
   }
 
-    
-  
+
+
   const userId = sessionStorage.getItem("userId")
   const [dashboardState, setDashboardState] = useState(initialState);
   const [notifications, setNotifications] = useState([]);
@@ -62,7 +62,7 @@ function Dashboard() {
   const [badgesData, setbadgesdata] = useState([])
   const [isLoading, setIsLoading] = useState(true); // Add loading state
 
-  
+
   const showModal = (modalId) => {
     setDashboardState((prev) => ({ ...prev, activeModal: modalId }));
     document.body.style.overflow = 'hidden';
@@ -95,7 +95,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`https://kodekshetra-server.onrender.com/api/users/getUserDetails/${userId}`);
+        const res = await fetch(`http://localhost:5000/api/users/getUserDetails/${userId}`);
         const userDetails = await res.json();
         setbadgesdata(userDetails.badgesData);
         setDashboardState((prev) => ({
@@ -148,7 +148,7 @@ function Dashboard() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dashboardState.activeModal]); 
+  }, [dashboardState.activeModal]);
 
 
   useEffect(() => {
@@ -173,15 +173,15 @@ function Dashboard() {
     return () => window.removeEventListener('resize', adjustBadgesHeight);
   }, [dashboardState.currentUser]);
 
-    const handleUpdateProfile = (updatedUser) => {
-  setDashboardState((prevState) => ({
-    ...prevState,
-    currentUser: {
-      ...prevState.currentUser,
-      ...updatedUser
-    }
-  }));
-};
+  const handleUpdateProfile = (updatedUser) => {
+    setDashboardState((prevState) => ({
+      ...prevState,
+      currentUser: {
+        ...prevState.currentUser,
+        ...updatedUser
+      }
+    }));
+  };
 
 
   // Show loading UI while fetching data
@@ -209,7 +209,7 @@ function Dashboard() {
       <Navbar showModal={showModal} showNotification={showNotification} />
       <main className="min-h-screen pt-32 pb-8 bg-[radial-gradient(circle_at_15%_25%,rgba(139,0,255,0.1)_0%,transparent_50%),radial-gradient(circle_at_85%_75%,rgba(0,245,255,0.08)_0%,transparent_50%),radial-gradient(circle_at_50%_50%,rgba(50,205,50,0.06)_0%,transparent_50%),var(--void-black)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <ProfileHeader user={dashboardState.currentUser} heatmapData={dashboardState.currentUser.heatmapData} onUpdateProfile={handleUpdateProfile}/>
+          <ProfileHeader user={dashboardState.currentUser} heatmapData={dashboardState.currentUser.heatmapData} onUpdateProfile={handleUpdateProfile} />
           <DashboardGrid
             user={dashboardState.currentUser}
             badgesData={badgesData}
@@ -219,7 +219,7 @@ function Dashboard() {
             generateNewRoomId={generateNewRoomId}
             activeModal={dashboardState.activeModal}
             hideModal={hideModal}
-            badgesCount={dashboardState.currentUser.badgesCount} 
+            badgesCount={dashboardState.currentUser.badgesCount}
           />
         </div>
       </main>

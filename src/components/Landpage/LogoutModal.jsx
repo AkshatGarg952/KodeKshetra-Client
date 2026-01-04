@@ -6,15 +6,15 @@ const LogoutModal = ({ setShowModal }) => {
 
   const closeModal = () => {
     if (!loading) setShowModal(false); // prevent closing while logging out
-  };  
+  };
 
   const handleLogout = async () => {
     setLoading(true);
     try {
       const token = sessionStorage.getItem("token");
 
-      const res = await fetch("https://kodekshetra-server.onrender.com/api/users/logout", {
-        method: "GET",
+      const res = await fetch("http://localhost:5000/api/users/logout", {
+        method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",

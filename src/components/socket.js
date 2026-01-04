@@ -4,19 +4,19 @@ let socket = null;
 
 const establishSocketConnection = () => {
   const userId = sessionStorage.getItem("userId");
-  
+
   if (!userId) {
     console.error("User ID not found in sessionStorage");
     return socket;
   }
-  
+
   if (socket && socket.connected) {
     console.log("Socket already connected");
     return socket;
   }
-  
-  socket = io("https://kodekshetra-server.onrender.com", {
-    withCredentials: true,
+
+  socket = io("http://localhost:5000", {
+    reconnection: true,
     transports: ["websocket"],
     query: {
       userId: userId,
@@ -24,15 +24,15 @@ const establishSocketConnection = () => {
   });
 
   window.socket = socket;
-  
+
   socket.on("connect", () => {
     console.log("Socket connected:", socket.id);
   });
-  
+
   socket.on("disconnect", () => {
     console.log("Socket disconnected");
   });
-  
+
   return socket;
 };
 

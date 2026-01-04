@@ -70,7 +70,7 @@ cd KodeKshetra-Client
 npm install
 
 # Create .env file with the following variable
-VITE_SERVER_URL=https://kodekshetra-server.onrender.com
+VITE_SERVER_URL=http://localhost:5000
 
 # Start the app
 npm run dev

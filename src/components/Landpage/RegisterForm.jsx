@@ -51,7 +51,7 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
       formData.append("leetcodeId", leetcodeId);
       formData.append("codeforcesId", codeforcesId);
 
-      const res = await fetch("https://kodekshetra-server.onrender.com/api/users/register", {
+      const res = await fetch("http://localhost:5000/api/users/register", {
         method: "POST",
         body: formData,
       });
@@ -123,7 +123,7 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
                 ) : (
                   <div className="text-center">
                     <svg className="w-8 h-8 text-text-secondary mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     <span className="text-xs text-text-secondary font-jetbrains-mono">Add Photo</span>
                   </div>
@@ -163,7 +163,7 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
             className="w-full bg-dark-gray text-text-primary rounded-lg px-4 py-3 border-2 border-electric-blue focus:outline-none input-glow font-jetbrains-mono transition-colors" />
 
           {/* Submit */}
-          <button type="submit" disabled={loading} 
+          <button type="submit" disabled={loading}
             className="w-full px-6 py-3 rounded-lg font-bold text-lg text-white bg-gradient-fire shadow-[0_8px_25px_rgba(255,69,0,0.4)] hover:-translate-y-1 hover:scale-105 hover:shadow-[0_15px_40px_rgba(255,215,0,0.6)] transition-all duration-300 disabled:opacity-50">
             Register
           </button>

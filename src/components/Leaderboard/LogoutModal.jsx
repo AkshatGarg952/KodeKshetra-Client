@@ -4,17 +4,17 @@ import { FaSignOutAlt } from 'react-icons/fa';
 const LogoutModal = ({ setShowModal, showNotification }) => {
   const closeModal = () => {
     setShowModal(false);
-  };  
+  };
 
-  
+
 
   const handleLogout = async () => {
     try {
       closeModal();
       const token = sessionStorage.getItem("token");
 
-      const res = await fetch("https://kodekshetra-server.onrender.com/api/users/logout", {
-        method: "GET",
+      const res = await fetch("http://localhost:5000/api/users/logout", {
+        method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",

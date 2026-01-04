@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCrown, faFire, faPencilAlt, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 
-function ProfileHeader({ 
-  user, 
-  heatmapData = [], 
-  onUpdateProfile = () => console.warn('onUpdateProfile prop not provided to ProfileHeader') 
+function ProfileHeader({
+  user,
+  heatmapData = [],
+  onUpdateProfile = () => console.warn('onUpdateProfile prop not provided to ProfileHeader')
 }) {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState(user.username);
@@ -45,7 +45,7 @@ function ProfileHeader({
 
       try {
         // Use the unified endpoint with user ID
-        const response = await fetch(`https://kodekshetra-server.onrender.com/api/users/update/${userId}`, {
+        const response = await fetch(`http://localhost:5000/api/users/update/${userId}`, {
           method: 'PUT',
           body: formData,
         });
@@ -111,7 +111,7 @@ function ProfileHeader({
 
     try {
       // Use the unified endpoint with user ID
-      const response = await fetch(`https://kodekshetra-server.onrender.com/api/users/update/${userId}`, {
+      const response = await fetch(`http://localhost:5000/api/users/update/${userId}`, {
         method: 'PUT',
         body: formData,
       });
@@ -173,7 +173,7 @@ function ProfileHeader({
                 className="w-full h-full object-cover"
               />
             </div>
-            
+
             {/* Edit Avatar Button */}
             <button
               onClick={handleAvatarEdit}
@@ -230,7 +230,7 @@ function ProfileHeader({
                 placeholder="Enter username"
                 maxLength={20}
               />
-              
+
               {/* Save and Cancel buttons in same row */}
               <div className="edit-actions flex items-center gap-2 flex-shrink-0">
                 <button
@@ -251,11 +251,11 @@ function ProfileHeader({
             </div>
           )}
         </div>
-        
+
         <p className="user-title text-xl text-text-secondary font-medium mb-6">
           Competitive Programming Master
         </p>
-        
+
         <div className="quick-stats flex flex-col md:flex-row gap-4 md:gap-8 justify-center lg:justify-start">
           <div className="quick-stat flex flex-col items-center gap-1">
             <span className="stat-value text-2xl font-extrabold font-jetbrains">
@@ -314,7 +314,7 @@ function ProfileHeader({
               heatmapData.map((data, index) => {
                 // Determine intensity level based on battle count
                 let intensityClass = '';
-                
+
                 if (data.battles === 0) {
                   intensityClass = 'bg-dark-gray';
                 } else if (data.battles === 1) {
@@ -326,14 +326,13 @@ function ProfileHeader({
                 } else {
                   intensityClass = 'bg-neon-cyan/80 shadow-[0_0_20px_rgba(0,245,255,0.8)]';
                 }
-                
+
                 return (
                   <div
                     key={index}
                     onClick={() => setSelectedDate(data)}
-                    className={`heatmap-cell w-4 h-4 rounded cursor-pointer transition-all hover:scale-125 hover:shadow-[0_0_20px_currentColor] ${intensityClass} ${
-                      selectedDate?.date === data.date ? 'ring-2 ring-neon-cyan scale-125' : ''
-                    }`}
+                    className={`heatmap-cell w-4 h-4 rounded cursor-pointer transition-all hover:scale-125 hover:shadow-[0_0_20px_currentColor] ${intensityClass} ${selectedDate?.date === data.date ? 'ring-2 ring-neon-cyan scale-125' : ''
+                      }`}
                     data-level={data.battles}
                     title={`${new Date(data.date).toDateString()}: ${data.battles} battles`}
                   ></div>
@@ -357,9 +356,8 @@ function ProfileHeader({
               {[0, 1, 2, 3, 4].map((level) => (
                 <div
                   key={level}
-                  className={`legend-item w-2.5 h-2.5 rounded-sm ${
-                    level === 0 ? 'bg-dark-gray' : `bg-neon-cyan/${level * 20}`
-                  }`}
+                  className={`legend-item w-2.5 h-2.5 rounded-sm ${level === 0 ? 'bg-dark-gray' : `bg-neon-cyan/${level * 20}`
+                    }`}
                   data-level={level}
                 ></div>
               ))}
