@@ -13,7 +13,7 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
       closeModal();
       const token = sessionStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5000/api/users/logout", {
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/users/logout`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

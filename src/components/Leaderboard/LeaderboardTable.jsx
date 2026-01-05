@@ -12,7 +12,7 @@ const LeaderboardTable = ({ leaderboardState, setLeaderboardState, showNotificat
         setLeaderboardState((prev) => ({ ...prev, isLoading: true }));
 
         const res = await fetch(
-          `http://localhost:5000/leaderboard/${currentFilter}/${currentPage}`
+          `${import.meta.env.VITE_SERVER_URL}/leaderboard/${currentFilter}/${currentPage}`
         );
         const data = await res.json();
         console.log("Fetched leaderboard:", data);

@@ -126,7 +126,7 @@ function BattlePage() {
     setActiveTab("output");
     setOutput(<div className="text-gray-400">Running... ⏳</div>);
     try {
-      const response = await fetch("http://localhost:9000/run", {
+      const response = await fetch(`${import.meta.env.VITE_CODE_RUNNER_URL}/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
@@ -159,7 +159,7 @@ function BattlePage() {
     setActiveTab("output");
     setOutput(<div className="text-gray-400">Submitting... ⏳</div>);
     try {
-      const response = await fetch("http://localhost:9000/submit", {
+      const response = await fetch(`${import.meta.env.VITE_CODE_RUNNER_URL}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),

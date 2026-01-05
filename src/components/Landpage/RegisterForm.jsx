@@ -51,7 +51,7 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
       formData.append("leetcodeId", leetcodeId);
       formData.append("codeforcesId", codeforcesId);
 
-      const res = await fetch("http://localhost:5000/api/users/register", {
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/users/register`, {
         method: "POST",
         body: formData,
       });
