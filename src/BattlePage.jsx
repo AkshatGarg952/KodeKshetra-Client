@@ -4,7 +4,9 @@ import Navbar from "./components/BattlePage/Navbar";
 import QuestionPanel from "./components/BattlePage/QuestionPanel";
 import EditorPanel from "./components/BattlePage/EditorPanel";
 import Notification from "./components/BattlePage/Notification";
+import ErrorFormatter from "./components/BattlePage/ErrorFormatter";
 import { socket } from "./components/socket.js";
+
 
 function BattlePage() {
   const location = useLocation();
@@ -120,12 +122,11 @@ function BattlePage() {
     sessionStorage.setItem("isWaiting", "true");
   };
 
-  // --- Run code ---
   const handleRunCode = async (code, language, problem) => {
     setActiveTab("output");
-    setOutput("Running... ⏳");
+    setOutput(<div className="text-gray-400">Running... ⏳</div>);
     try {
-      const response = await fetch("http://localhost:5000/run", {
+      const response = await fetch("http://localhost:9000/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
@@ -134,30 +135,31 @@ function BattlePage() {
       const data = await response.json();
       console.log("received data", data);
 
-      let outputText = "";
-      if (data.errorType) {
-        outputText += `❌ ${data.errorType}\nMessage: ${data.message}\n`;
-        if (data.result?.input)
-          outputText += `Failing Input: ${data.result.input}\n`;
-        addNotification("⚠️ Code execution failed", "error");
+      setOutput(<ErrorFormatter data={data} />);
+
+      if (data.isError) {
+        addNotification(`⚠️ ${data.errorType}`, "error");
       } else {
-        outputText += `${data.message}\n`;
         addNotification("✨ All test cases passed", "success");
       }
-      setOutput(outputText);
     } catch (err) {
       console.error(err);
-      setOutput(`Error running code: ${err.message}`);
+      setOutput(
+        <div className="text-red-400">
+          <div className="font-semibold mb-2">Error running code</div>
+          <div className="text-sm">{err.message}</div>
+        </div>
+      );
       addNotification("⚠️ Failed to execute code", "error");
     }
   };
 
-  // --- Submit code ---
+
   const handleSubmit = async (code, language, problem) => {
     setActiveTab("output");
-    setOutput("Submitting... ⏳");
+    setOutput(<div className="text-gray-400">Submitting... ⏳</div>);
     try {
-      const response = await fetch("http://localhost:5000/submit", {
+      const response = await fetch("http://localhost:9000/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
@@ -165,24 +167,26 @@ function BattlePage() {
       if (!response.ok) throw new Error(`Server Error: ${response.status}`);
       const data = await response.json();
 
-      let outputText = "";
-      if (data.errorType) {
-        outputText += `❌ ${data.errorType}\nMessage: ${data.message}\n`;
-        if (data.result?.input)
-          outputText += `Failing Input: ${data.result.input}\n`;
-        addNotification(`${data.errorType}: ${data.message}`, "error");
+      setOutput(<ErrorFormatter data={data} />);
+
+      if (data.isError) {
+        addNotification(`${data.errorType}`, "error");
       } else {
-        outputText += `✅ ${data.message}\n`;
         addNotification("🎉 All test cases passed successfully!", "success");
         emitBattleEnded(code, language);
       }
-      setOutput(outputText);
     } catch (err) {
       console.error(err);
-      setOutput(`Error submitting code: ${err.message}`);
+      setOutput(
+        <div className="text-red-400">
+          <div className="font-semibold mb-2">Error submitting code</div>
+          <div className="text-sm">{err.message}</div>
+        </div>
+      );
       addNotification("⚠️ Failed to submit code", "error");
     }
   };
+
 
   // --- Helper: Determine battle outcome ---
   const getBattleOutcome = () => {
@@ -324,9 +328,9 @@ function BattlePage() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className={`relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-12 rounded-3xl shadow-2xl max-w-2xl w-full mx-4 text-center border-2 ${outcome === 'won' ? 'border-green-500 shadow-green-500/50' :
-            outcome === 'loss' ? 'border-red-500 shadow-red-500/50' :
-              outcome === 'draw' ? 'border-yellow-500 shadow-yellow-500/50' :
-                'border-matrix-green shadow-matrix-green/50'
+          outcome === 'loss' ? 'border-red-500 shadow-red-500/50' :
+            outcome === 'draw' ? 'border-yellow-500 shadow-yellow-500/50' :
+              'border-matrix-green shadow-matrix-green/50'
           } transform transition-all duration-500 ${showModal ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
           }`}>
           {renderContent()}
