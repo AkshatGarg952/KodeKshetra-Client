@@ -1,582 +1,285 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect, useRef } from 'react';
 
 const NeuralNetwork = () => {
-  const [neuralState, setNeuralState] = useState({
-    unlockedNodes: [],
-    totalNodes: 5,
-    centeredCard: null,
-    isAnimating: false
-  });
-
-
-  const [matrixRain, setMatrixRain] = useState([]);
-
-
-  useEffect(() => {
-    // Generate matrix rain
-    const matrixChars = ['0', '1', 'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'キ', 'ク', 'ケ', 'コ'];
-    const drops = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      char: matrixChars[Math.floor(Math.random() * matrixChars.length)],
-      left: Math.random() * 100,
-      delay: Math.random() * 20
-    }));
-    setMatrixRain(drops);
-  }, []);
-
+  const [activeStep, setActiveStep] = useState(1);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [unlockedNodes, setUnlockedNodes] = useState([]);
+  const autoPlayRef = useRef(null);
 
   const nodes = [
     {
       step: 1,
-      position: 'top',
+      id: 'PROTOCOL_INIT',
       color: 'crimson',
       icon: 'fas fa-rocket',
       title: 'Weapon Selection Matrix',
-      description: 'Advanced arsenal selection system allowing strategic choice between Data Structures & Algorithms for foundational combat or Competitive Programming for elite tactical operations.'
+      description: 'Advanced arsenal selection system allowing strategic choice between Data Structures & Algorithms for foundational combat or Competitive Programming for elite tactical operations.',
+      stats: ['DSA Core', 'CP Tactics', 'Elite Mode']
     },
     {
       step: 2,
-      position: 'right',
+      id: 'TARGET_ACQ',
       color: 'azure',
       icon: 'fas fa-crosshairs',
       title: 'Domain Targeting System',
-      description: 'Precision-engineered topic selection interface covering Dynamic Programming mastery, Graph theory warfare, Array manipulation tactics, and Tree traversal strategies.'
+      description: 'Precision-engineered topic selection interface covering Dynamic Programming mastery, Graph theory warfare, Array manipulation tactics, and Tree traversal strategies.',
+      stats: ['Graph Theory', 'DP Mastery', 'Tree Logic']
     },
     {
       step: 3,
-      position: 'bottom-right',
+      id: 'RIVAL_BATTLE',
       color: 'emerald',
-      icon: 'fas fa-users-line',
+      icon: 'fas fa-users',
       title: 'Rival Matchmaking Engine',
-      description: 'Sophisticated opponent pairing algorithm supporting private duels with friends or global matchmaking with skill-based ranking and compatibility analysis.'
+      description: 'Sophisticated opponent pairing algorithm supporting private duels with friends or global matchmaking with skill-based ranking and compatibility analysis.',
+      stats: ['Global Rank', 'Skill Match', 'Private Lobby']
     },
     {
       step: 4,
-      position: 'bottom-left',
+      id: 'ARENA_LIVE',
       color: 'violet',
-      icon: 'fas fa-swords',
+      icon: 'fas fa-code',
       title: 'Real-Time Battle Arena',
-      description: 'High-performance IDE environment featuring real-time code execution, live result streaming, syntax highlighting, and intelligent auto-completion systems.'
+      description: 'High-performance IDE environment featuring real-time code execution, live result streaming, syntax highlighting, and intelligent auto-completion systems.',
+      stats: ['Live Exec', 'Auto-Complete', 'Syntax Highlight']
     },
     {
       step: 5,
-      position: 'left',
+      id: 'VICTORY_CORE',
       color: 'amber',
       icon: 'fas fa-trophy',
       title: 'Victory Achievement Core',
-      description: 'Comprehensive victory tracking system with XP accumulation, prestigious badge unlocking, and dynamic leaderboard ranking across multiple skill categories.'
+      description: 'Comprehensive victory tracking system with XP accumulation, prestigious badge unlocking, and dynamic leaderboard ranking across multiple skill categories.',
+      stats: ['XP System', 'Badges', 'Leaderboard']
     }
   ];
 
+  // Auto-play logic
+  useEffect(() => {
+    if (isAutoPlaying) {
+      autoPlayRef.current = setInterval(() => {
+        setActiveStep(prev => (prev % 5) + 1);
+      }, 4000);
+    }
+    return () => clearInterval(autoPlayRef.current);
+  }, [isAutoPlaying]);
 
-  const getNodePositionClasses = (position) => {
-    const positions = {
-      'top': 'top-4 left-1/2 -translate-x-1/2',
-      'right': 'top-1/2 right-8 -translate-y-1/2',
-      'bottom-right': 'bottom-8 right-1/4',
-      'bottom-left': 'bottom-8 left-1/4',
-      'left': 'top-1/2 left-8 -translate-y-1/2'
-    };
-    return positions[position] || '';
+  const handleNodeClick = (step) => {
+    setIsAutoPlaying(false);
+    setActiveStep(step);
+    if (!unlockedNodes.includes(step)) {
+      setUnlockedNodes(prev => [...prev, step]);
+    }
   };
 
+  const activeNode = nodes.find(n => n.step === activeStep);
 
   const getColorClasses = (color) => {
     const colors = {
       crimson: {
-        border: 'border-red-600',
-        glow: 'shadow-[0_0_30px_rgba(220,20,60,0.3)]',
         text: 'text-red-400',
-        bg: 'bg-red-500/10',
-        accent: '#dc143c'
+        bg: 'bg-red-500',
+        border: 'border-red-500',
+        glow: 'shadow-red-500/50',
+        gradient: 'from-red-600 via-red-900 to-black'
       },
       azure: {
-        border: 'border-blue-500',
-        glow: 'shadow-[0_0_30px_rgba(0,127,255,0.3)]',
-        text: 'text-blue-400',
-        bg: 'bg-blue-500/10',
-        accent: '#007fff'
+        text: 'text-cyan-400',
+        bg: 'bg-cyan-500',
+        border: 'border-cyan-500',
+        glow: 'shadow-cyan-500/50',
+        gradient: 'from-cyan-600 via-cyan-900 to-black'
       },
       emerald: {
-        border: 'border-green-500',
-        glow: 'shadow-[0_0_30px_rgba(80,200,120,0.3)]',
-        text: 'text-green-400',
-        bg: 'bg-green-500/10',
-        accent: '#50c878'
+        text: 'text-emerald-400',
+        bg: 'bg-emerald-500',
+        border: 'border-emerald-500',
+        glow: 'shadow-emerald-500/50',
+        gradient: 'from-emerald-600 via-emerald-900 to-black'
       },
       violet: {
-        border: 'border-purple-600',
-        glow: 'shadow-[0_0_30px_rgba(138,43,226,0.3)]',
-        text: 'text-purple-400',
-        bg: 'bg-purple-500/10',
-        accent: '#8a2be2'
+        text: 'text-violet-400',
+        bg: 'bg-violet-500',
+        border: 'border-violet-500',
+        glow: 'shadow-violet-500/50',
+        gradient: 'from-violet-600 via-violet-900 to-black'
       },
       amber: {
-        border: 'border-yellow-500',
-        glow: 'shadow-[0_0_30px_rgba(255,191,0,0.3)]',
-        text: 'text-yellow-400',
-        bg: 'bg-yellow-500/10',
-        accent: '#ffbf00'
+        text: 'text-amber-400',
+        bg: 'bg-amber-500',
+        border: 'border-amber-500',
+        glow: 'shadow-amber-500/50',
+        gradient: 'from-amber-600 via-amber-900 to-black'
       }
     };
     return colors[color] || colors.azure;
   };
 
-
-  const handleNodeClick = (step, e) => {
-    e.stopPropagation();
-    if (neuralState.isAnimating) return;
-
-
-    const node = nodes.find(n => n.step === step);
-    const isUnlocked = neuralState.unlockedNodes.includes(step);
-
-
-    setNeuralState(prev => ({ ...prev, isAnimating: true }));
-
-
-    setNeuralState(prev => ({
-      ...prev,
-      centeredCard: node,
-      isAnimating: false
-    }));
-
-
-    if (!isUnlocked) {
-      setTimeout(() => {
-        setNeuralState(prev => ({
-          ...prev,
-          unlockedNodes: [...prev.unlockedNodes, step]
-        }));
-      }, 500);
-    }
-  };
-
-
-  const handleCloseCard = () => {
-    setNeuralState(prev => ({
-      ...prev,
-      centeredCard: null,
-      isAnimating: false
-    }));
-  };
-
-
-  const progressPercentage = (neuralState.unlockedNodes.length / neuralState.totalNodes) * 100;
-
+  const activeColors = getColorClasses(activeNode.color);
 
   return (
-    <section className="py-20 bg-black relative overflow-hidden" id="how-it-works">
-      <div 
-        className="absolute top-0 left-0 w-full h-full z-[1]"
+    <section className="bg-[#050510] relative overflow-hidden flex flex-col items-center justify-center py-12" id="how-it-works">
+
+      {/* Background Cyber-Grid */}
+      <div
+        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
         style={{
-          background: `
-            radial-gradient(circle at 20% 30%, rgba(30, 30, 30, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(40, 40, 40, 0.2) 0%, transparent 50%)
-          `
+          backgroundImage: `
+            linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+          transform: 'perspective(500px) rotateX(60deg) translateY(100px) scale(2)'
         }}
       />
 
-
-      <div className="max-w-7xl mx-auto px-8 relative z-[2]">
-        <div className="text-center mb-16 relative">
-          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 font-mono text-sm text-cyan-400 opacity-70 tracking-[3px]">
-            &lt; NEURAL PROTOCOL &gt;
-          </div>
-          
-          <h2 
-            className="text-4xl md:text-5xl lg:text-6xl font-black mb-5 tracking-tight relative"
-            style={{
-              background: 'linear-gradient(135deg, #00BFFF 0%, #00FFFF 50%, #39FF14 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              letterSpacing: '-0.02em'
-            }}
-          >
-            Neural Domination Protocol
-            <span 
-              className="absolute top-0 left-0 w-full h-full opacity-0"
-              style={{
-                background: 'linear-gradient(135deg, #39FF14 0%, #00FFFF 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                animation: 'neuralGlitch 4s ease-in-out infinite'
-              }}
-            >
-              NEURAL DOMINATION PROTOCOL
-            </span>
-          </h2>
-          
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-6">
-            Click on any neural node to unlock and explore advanced coding capabilities
-          </p>
-
-
-          <div className="flex flex-col items-center gap-3 mt-6">
-            <div className="w-80 md:w-96 h-2 bg-gray-900/80 rounded-full border-2 border-cyan-500 relative overflow-hidden">
-              <div 
-                className="h-full rounded-lg transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                style={{
-                  width: `${progressPercentage}%`,
-                  background: 'linear-gradient(90deg, #00BFFF 0%, #00FFFF 50%, #39FF14 100%)',
-                  boxShadow: '0 0 15px #00BFFF'
-                }}
-              />
-              <div 
-                className="absolute top-0 left-0 w-5 h-full opacity-70"
-                style={{
-                  background: 'linear-gradient(90deg, transparent, #00FFFF, transparent)',
-                  animation: 'neuralScan 2s linear infinite'
-                }}
-              />
-            </div>
-            <span className="font-mono text-cyan-400 text-base font-semibold">
-              {neuralState.unlockedNodes.length === neuralState.totalNodes 
-                ? '🧠 NEURAL DOMINATION PROTOCOL COMPLETE!'
-                : `${neuralState.unlockedNodes.length}/${neuralState.totalNodes} Neural Nodes Activated`
-              }
-            </span>
-          </div>
+      {/* Title Section */}
+      <div className="relative z-10 text-center mb-10">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="h-[1px] w-12 bg-gray-500/50"></div>
+          <span className="font-mono text-cyan-400 text-xs tracking-[0.3em]">SYSTEM ARCHITECTURE</span>
+          <div className="h-[1px] w-12 bg-gray-500/50"></div>
         </div>
-
-
-        <div className="relative max-w-6xl mx-auto h-[700px] flex items-center justify-center">
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-[1]">
-            {matrixRain.map((drop) => (
-              <div
-                key={drop.id}
-                className="absolute text-xs text-cyan-500 opacity-10"
-                style={{
-                  left: `${drop.left}%`,
-                  animationDelay: `${drop.delay}s`,
-                  animation: 'matrixDrop 10s linear infinite'
-                }}
-              >
-                {drop.char}
-              </div>
-            ))}
-          </div>
-
-
-          <svg className="absolute top-0 left-0 w-full h-full z-[3] pointer-events-none" viewBox="0 0 1200 700">
-            <defs>
-              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#00BFFF" stopOpacity="0.3"/>
-                <stop offset="50%" stopColor="#00FFFF" stopOpacity="0.5"/>
-                <stop offset="100%" stopColor="#00BFFF" stopOpacity="0.3"/>
-              </linearGradient>
-            </defs>
-            <line className="opacity-30" x1="600" y1="350" x2="600" y2="80" stroke="url(#lineGradient)" strokeWidth="2" style={{ animation: 'connectionPulse 3s ease-in-out infinite' }}/>
-            <line className="opacity-30" x1="600" y1="350" x2="1050" y2="350" stroke="url(#lineGradient)" strokeWidth="2" style={{ animation: 'connectionPulse 3s ease-in-out infinite 0.3s' }}/>
-            <line className="opacity-30" x1="600" y1="350" x2="900" y2="600" stroke="url(#lineGradient)" strokeWidth="2" style={{ animation: 'connectionPulse 3s ease-in-out infinite 0.6s' }}/>
-            <line className="opacity-30" x1="600" y1="350" x2="300" y2="600" stroke="url(#lineGradient)" strokeWidth="2" style={{ animation: 'connectionPulse 3s ease-in-out infinite 0.9s' }}/>
-            <line className="opacity-30" x1="600" y1="350" x2="150" y2="350" stroke="url(#lineGradient)" strokeWidth="2" style={{ animation: 'connectionPulse 3s ease-in-out infinite 1.2s' }}/>
-          </svg>
-
-
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 z-10 text-center">
-            <div 
-              className="w-32 h-32 rounded-full border-3 border-cyan-400 flex items-center justify-center relative"
-              style={{
-                background: 'linear-gradient(145deg, rgba(0, 0, 0, 0.98), rgba(20, 20, 20, 0.95))',
-                animation: 'brainPulse 3s ease-in-out infinite',
-                boxShadow: '0 0 40px rgba(0, 191, 255, 0.4), inset 0 0 20px rgba(0, 191, 255, 0.1)'
-              }}
-            >
-              <div 
-                className="absolute w-40 h-40 border-2 border-cyan-400 rounded-full -top-4 -left-4 opacity-0"
-                style={{ animation: 'corePulseExpand 2s ease-out infinite' }}
-              />
-              <i 
-                className="fas fa-brain text-5xl text-cyan-400"
-                style={{ filter: 'drop-shadow(0 0 10px #00BFFF)' }}
-              />
-            </div>
-            <h3 className="mt-4 text-sm text-cyan-300 font-semibold tracking-wide">CodeVersus Neural Core</h3>
-          </div>
-
-
-          {neuralState.centeredCard && (
-            <div 
-              className="absolute top-0 left-0 w-full h-full z-30 flex items-center justify-center"
-              style={{
-                animation: 'fadeIn 0.4s ease-out'
-              }}
-              onClick={handleCloseCard}
-            >
-              <div 
-                className="absolute top-0 left-0 w-full h-full bg-black/80 backdrop-blur-md"
-                style={{
-                  animation: 'fadeIn 0.3s ease-out'
-                }}
-              />
-
-
-              <div 
-                className={`relative max-w-xl w-full mx-8 ${getColorClasses(neuralState.centeredCard.color).bg} rounded-3xl p-10 border-2 ${getColorClasses(neuralState.centeredCard.color).border} ${getColorClasses(neuralState.centeredCard.color).glow} backdrop-blur-xl`}
-                style={{
-                  animation: 'cardSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  background: 'linear-gradient(145deg, rgba(10, 10, 10, 0.98), rgba(25, 25, 25, 0.95))'
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex items-center gap-6 mb-6">
-                  <div 
-                    className={`w-20 h-20 rounded-2xl border-2 ${getColorClasses(neuralState.centeredCard.color).border} ${getColorClasses(neuralState.centeredCard.color).glow} flex items-center justify-center`}
-                    style={{
-                      background: 'linear-gradient(145deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 20, 0.9))'
-                    }}
-                  >
-                    <i 
-                      className={`${neuralState.centeredCard.icon} text-4xl ${getColorClasses(neuralState.centeredCard.color).text}`}
-                      style={{ filter: 'drop-shadow(0 0 10px currentColor)' }}
-                    />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="font-mono text-xs text-gray-500 mb-2 tracking-wider">
-                      NODE #{neuralState.centeredCard.step} • {neuralState.unlockedNodes.includes(neuralState.centeredCard.step) ? 'ACTIVATED' : 'UNLOCKING...'}
-                    </div>
-                    <h3 className={`text-2xl font-bold ${getColorClasses(neuralState.centeredCard.color).text}`}>
-                      {neuralState.centeredCard.title}
-                    </h3>
-                  </div>
-                </div>
-
-
-                <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                  {neuralState.centeredCard.description}
-                </p>
-
-
-                <div className="flex items-center justify-center gap-3 pt-4 border-t border-gray-800">
-                  <i className="fas fa-hand-pointer text-gray-500 text-sm animate-pulse" />
-                  <span className="font-mono text-sm text-gray-500">
-                    Click anywhere on screen to close
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-
-          {nodes.map((node) => {
-            const colorClasses = getColorClasses(node.color);
-            const isUnlocked = neuralState.unlockedNodes.includes(node.step);
-            const isCardShown = neuralState.centeredCard?.step === node.step;
-            
-            return (
-              <div
-                key={node.step}
-                className={`absolute w-36 h-36 cursor-pointer transition-all duration-500 ease-out z-[5] ${getNodePositionClasses(node.position)}`}
-                onClick={(e) => handleNodeClick(node.step, e)}
-                style={{
-                  opacity: neuralState.centeredCard && !isCardShown ? 0.2 : 1,
-                  filter: neuralState.centeredCard && !isCardShown ? 'blur(4px)' : 'none',
-                  transform: isCardShown ? 'scale(1.1)' : 'scale(1)'
-                }}
-              >
-                {!isUnlocked && (
-                  <div 
-                    className={`w-36 h-36 rounded-full border-2 ${colorClasses.border} flex items-center justify-center overflow-hidden transition-all duration-700 hover:scale-110 hover:${colorClasses.glow}`}
-                    style={{
-                      background: 'linear-gradient(145deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 20, 0.9))'
-                    }}
-                  >
-                    <div className="relative flex items-center justify-center">
-                      <div 
-                        className="absolute top-0 left-0 w-full h-full opacity-5"
-                        style={{
-                          background: `
-                            linear-gradient(45deg, transparent 48%, ${colorClasses.accent} 49%, ${colorClasses.accent} 51%, transparent 52%),
-                            linear-gradient(-45deg, transparent 48%, ${colorClasses.accent} 49%, ${colorClasses.accent} 51%, transparent 52%)
-                          `,
-                          backgroundSize: '15px 15px',
-                          animation: 'matrixScroll 10s linear infinite'
-                        }}
-                      />
-                      <i 
-                        className={`fas fa-lock text-3xl ${colorClasses.text} z-[2]`}
-                        style={{
-                          filter: 'drop-shadow(0 0 10px currentColor)',
-                          animation: 'lockPulse 2s ease-in-out infinite'
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-
-                {isUnlocked && (
-                  <div 
-                    className={`w-36 h-36 rounded-full border-3 ${colorClasses.border} ${colorClasses.glow} flex items-center justify-center relative overflow-hidden transition-all duration-500 hover:scale-110`}
-                    style={{
-                      background: 'linear-gradient(145deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 20, 0.9))',
-                      animation: isCardShown ? 'nodePulse 0.5s ease-in-out' : 'none'
-                    }}
-                  >
-                    <i 
-                      className={`${node.icon} text-4xl ${colorClasses.text} transition-all duration-500 z-[2]`}
-                      style={{ filter: 'drop-shadow(0 0 15px currentColor)' }}
-                    />
-                    <div 
-                      className={`absolute -top-2 -left-2 -right-2 -bottom-2 rounded-full opacity-10 z-[1]`}
-                      style={{
-                        background: `radial-gradient(circle, ${colorClasses.accent} 0%, transparent 70%)`,
-                        animation: 'nodeGlowPulse 3s ease-in-out infinite'
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-gray-500 tracking-tight">
+          Neural <span className="text-cyan-400">Interface</span>
+        </h2>
       </div>
 
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 h-auto lg:h-[500px]">
+
+        {/* LEFT COLUMN - NAVIGATION SPINAL CORD */}
+        <div className="lg:col-span-4 flex flex-col justify-between relative order-2 lg:order-1">
+          {/* Vertical Line */}
+          <div className="absolute left-8 top-4 bottom-4 w-1 bg-gray-800 hidden lg:block rounded-full"></div>
+
+          <div className="flex flex-col gap-6 h-full justify-center">
+            {nodes.map((node) => {
+              const isActive = activeStep === node.step;
+              const colors = getColorClasses(node.color);
+
+              return (
+                <div
+                  key={node.step}
+                  onClick={() => handleNodeClick(node.step)}
+                  className={`group relative pl-0 lg:pl-16 cursor-pointer transition-all duration-300 ${isActive ? 'scale-105 lg:translate-x-4' : 'opacity-60 hover:opacity-100'}`}
+                >
+                  {/* Connection Node Point (Desktop) */}
+                  <div className={`absolute left-[26px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 bg-[#050510] z-20 transition-all duration-300 hidden lg:block
+                    ${isActive ? `${colors.border} ${colors.glow} shadow-[0_0_15px_currentColor]` : 'border-gray-700'}
+                  `}>
+                    {isActive && <div className={`absolute inset-0 rounded-full animate-ping opacity-75 ${colors.bg}`}></div>}
+                  </div>
+
+                  {/* Horizontal Connector Line (Desktop) */}
+                  <div className={`absolute left-8 top-1/2 -translate-y-1/2 h-[2px] bg-gray-700 transition-all duration-300 hidden lg:block
+                    ${isActive ? `w-8 ${colors.bg} ${colors.glow}` : 'w-0'}
+                  `}></div>
+
+                  {/* Card Content */}
+                  <div className={`p-4 rounded-xl border backdrop-blur-md transition-all duration-300 flex items-center gap-4
+                    ${isActive
+                      ? `bg-gray-900/80 ${colors.border} ring-1 ring-inset ${colors.text} shadow-lg`
+                      : 'bg-gray-900/40 border-gray-800 hover:border-gray-600'}
+                  `}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors duration-300 ${isActive ? `${colors.bg} text-black` : 'bg-gray-800 text-gray-400'}`}>
+                      <i className={node.icon}></i>
+                    </div>
+                    <div>
+                      <div className="font-mono text-[10px] text-gray-500 tracking-wider">0{node.step}</div>
+                      <div className={`font-bold text-sm ${isActive ? 'text-white' : 'text-gray-300'}`}>{node.title}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN - HOLOGRAPHIC PROJECTION */}
+        <div className="lg:col-span-8 relative h-[400px] lg:h-full order-1 lg:order-2">
+          {/* Main Display Container */}
+          <div className="absolute inset-0 rounded-3xl border border-gray-700 bg-[#0a0a15]/90 backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-500 flex flex-col md:flex-row">
+
+            {/* Ambient Pulse Background */}
+            <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] opacity-20 pointer-events-none transition-colors duration-700 ${activeColors.bg}`}></div>
+
+            {/* Content Side */}
+            <div className="flex-1 p-8 md:p-12 relative z-10 flex flex-col justify-center">
+
+              {/* Header Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gray-700 bg-gray-900/50 backdrop-blur-sm self-start mb-6">
+                <span className={`w-2 h-2 rounded-full animate-pulse ${activeColors.bg}`}></span>
+                <span className={`text-xs font-mono font-bold tracking-widest ${activeColors.text}`}>SYSTEM_ID: {activeNode.id}</span>
+              </div>
+
+              {/* Title with Glitch Effect */}
+              <h1 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight tracking-tight">
+                {activeNode.title}
+              </h1>
+
+              {/* Typewriter Description */}
+              <p key={activeStep} className="text-lg text-gray-400 leading-relaxed min-h-[100px] animate-fade-in-up">
+                {activeNode.description}
+              </p>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-800">
+                {activeNode.stats.map((stat, i) => (
+                  <div key={i} className="text-center group cursor-default">
+                    <div className={`text-2xl mb-1 opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${activeColors.text}`}>
+                      <i className="fas fa-microchip"></i>
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-gray-500 group-hover:text-gray-300">{stat}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Visual Side (Icon Projection) */}
+            <div className={`w-full md:w-1/3 bg-gradient-to-b ${activeColors.gradient} relative flex items-center justify-center overflow-hidden`}>
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay"></div>
+
+              {/* Animated Big Icon */}
+              <div key={activeStep} className="relative z-10 animate-float">
+                <i className={`${activeNode.icon} text-9xl text-white opacity-90 drop-shadow-[0_0_30px_rgba(255,255,255,0.5)] transform transition-transform hover:scale-110 duration-500`}></i>
+              </div>
+
+              {/* Scanning Line Effect */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-transparent w-full h-[20%] animate-scan pointer-events-none"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
         }
 
-
-        @keyframes cardSlideIn {
-          from {
-            opacity: 0;
-            transform: scale(0.8) translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
+        @keyframes scan {
+          0% { top: -20%; }
+          100% { top: 120%; }
+        }
+        .animate-scan {
+          animation: scan 4s linear infinite;
         }
 
-
-        @keyframes nodePulse {
-          0%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.05);
-          }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-
-
-        @keyframes neuralGlitch {
-          0%, 90%, 100% {
-            opacity: 0;
-          }
-          92%, 98% {
-            opacity: 0.8;
-          }
-        }
-
-
-        @keyframes brainPulse {
-          0%, 100% {
-            transform: scale(1);
-            box-shadow: 0 0 40px rgba(0, 191, 255, 0.4), inset 0 0 20px rgba(0, 191, 255, 0.1);
-          }
-          50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 60px rgba(0, 191, 255, 0.5), inset 0 0 30px rgba(0, 191, 255, 0.2);
-          }
-        }
-
-
-        @keyframes corePulseExpand {
-          0% {
-            opacity: 0.8;
-            transform: scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(1.5);
-          }
-        }
-
-
-        @keyframes neuralScan {
-          0% {
-            left: 0%;
-          }
-          100% {
-            left: 100%;
-          }
-        }
-
-
-        @keyframes connectionPulse {
-          0%, 100% {
-            opacity: 0.2;
-          }
-          50% {
-            opacity: 0.5;
-          }
-        }
-
-
-        @keyframes matrixDrop {
-          0% {
-            top: -10%;
-            opacity: 0;
-          }
-          10% {
-            opacity: 0.1;
-          }
-          90% {
-            opacity: 0.1;
-          }
-          100% {
-            top: 110%;
-            opacity: 0;
-          }
-        }
-
-
-        @keyframes matrixScroll {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 0 100px;
-          }
-        }
-
-
-        @keyframes lockPulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.1);
-            opacity: 0.8;
-          }
-        }
-
-
-        @keyframes nodeGlowPulse {
-          0%, 100% {
-            opacity: 0.1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.2;
-            transform: scale(1.1);
-          }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.5s ease-out forwards;
         }
       `}</style>
     </section>
   );
 };
-
 
 export default NeuralNetwork;
