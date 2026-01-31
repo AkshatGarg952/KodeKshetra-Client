@@ -11,7 +11,7 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
   const [password, setPassword] = useState("");
   const [leetcodeId, setLeetcodeId] = useState("");
   const [codeforcesId, setCodeforcesId] = useState("");
-  const [loading, setLoading] = useState(false); // 🔹 New
+  const [loading, setLoading] = useState(false);
 
   const handleSwitchToLogin = () => {
     if (!loading) {

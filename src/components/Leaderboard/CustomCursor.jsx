@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [trail, setTrail] = useState([]);
-  const leaderboardSymbols = ['#1', '#2', '#3', '👑', '🏆', '⚡', '🔥', '💎', '⭐', '🎯'];
+  const leaderboardSymbols = ['#1', '#2', '#3', 'TOP', 'WIN', 'FAST', 'HOT', 'RANK', 'STAR', 'ACE'];
   let symbolIndex = 0;
 
   useEffect(() => {

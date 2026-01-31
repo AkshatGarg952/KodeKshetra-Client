@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faCheckCircle, faCircleNotch, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation, replace } from 'react-router-dom';
-import {socket} from "./components/socket.js";
+import { socket } from "./components/socket.js";
 import "./index.css";
 
 const WaitingPage1 = () => {
@@ -12,19 +12,19 @@ const WaitingPage1 = () => {
   const { roomId, battle } = location.state || {};
   const { mode, topic } = battle || {}
   const userId = sessionStorage.getItem("userId")
-  
+
   useEffect(() => {
     document.querySelector('.main-container')?.classList.add('animate-fadeIn');
     socket.emit("joinBattleRoom", {
-        battle,
-        userId,
-        roomId
-      });
-    
+      battle,
+      userId,
+      roomId
+    });
+
     socket.on("battleStart", ({ question, battleId }) => {
       console.log("Battle started with question:", question);
-      navigate("/battlepage", { 
-        state: { 
+      navigate("/battlepage", {
+        state: {
           battle: { mode, topic, question, battleId },
           roomId,
         },
@@ -38,8 +38,8 @@ const WaitingPage1 = () => {
   }, [navigate]);
 
   const handleCancel = () => {
-    if (window.confirm('⚠️ Are you sure you want to leave the room?')) {
-      alert('🚫 Left the Room!');
+    if (window.confirm('Are you sure you want to leave the room?')) {
+      alert('Left the Room!');
       navigate("/", { replace: true });
     }
   };
@@ -72,7 +72,7 @@ const WaitingPage1 = () => {
       <div className="main-container flex-1 flex justify-center items-center p-4 md:p-8 bg-radial-gradients">
         <div className="bg-gray-900/90 backdrop-blur-xl border-2 border-blue-400 rounded-2xl p-4 md:p-8 max-w-xl w-full text-center shadow-2xl animate-fadeIn">
           <h1 className="text-2xl md:text-3xl font-bold text-gradient-cyber mb-6 text-shadow-blue">
-            ⚔️ Room Creation in Process ⚔️
+            Room Creation in Process
           </h1>
           <div className="text-4xl md:text-5xl text-green-400 mb-6 animate-spin animate-neon-flicker">
             <FontAwesomeIcon icon={faSpinner} />

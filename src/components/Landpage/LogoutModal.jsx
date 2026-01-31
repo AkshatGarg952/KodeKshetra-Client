@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaSignOutAlt } from 'react-icons/fa';
 
 const LogoutModal = ({ setShowModal }) => {
-  const [loading, setLoading] = useState(false); // 🔹 loading state
+  const [loading, setLoading] = useState(false);
 
   const closeModal = () => {
     if (!loading) setShowModal(false); // prevent closing while logging out

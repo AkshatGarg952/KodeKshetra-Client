@@ -39,13 +39,13 @@ const BattleArena = () => {
     { text: 'Test case 5... PASSED', delay: 3.5, success: true },
     { text: 'All tests successful! Runtime: 0.028s', delay: 4, info: true },
     { text: 'Memory usage: 14.7MB', delay: 4.5, info: true },
-    { text: '🎯 Solution accepted!', delay: 5, trophy: true }
+    { text: 'Solution accepted!', delay: 5, trophy: true }
   ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center mt-8">
       {/* Left Coder Panel */}
-      <div 
+      <div
         className="rounded-3xl p-8 border-2 border-blue-400 backdrop-blur-[20px] h-[520px] relative transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] opacity-0 transform translate-y-12 hover:transform hover:-translate-y-3 hover:scale-105"
         style={{
           background: 'linear-gradient(145deg, rgba(13, 13, 13, 0.98), rgba(26, 26, 26, 0.95))',
@@ -60,7 +60,7 @@ const BattleArena = () => {
         }}
       >
         <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-blue-400">
-          <div 
+          <div
             className="w-14 h-14 rounded-full bg-gradient-to-r from-cyan-400 to-green-400 flex items-center justify-center text-2xl text-white font-black"
             style={{
               boxShadow: '0 0 25px #00BFFF',
@@ -72,7 +72,7 @@ const BattleArena = () => {
           <div>
             <h3 className="text-xl font-bold text-white mb-1">Alex_Warrior</h3>
             <div className="text-sm text-cyan-400 font-mono flex items-center gap-2">
-              <div 
+              <div
                 className="w-2 h-2 rounded-full bg-cyan-400"
                 style={{ animation: 'statusBlink 1.8s ease-in-out infinite' }}
               ></div>
@@ -80,7 +80,7 @@ const BattleArena = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-black/90 rounded-2xl p-6 h-96 overflow-hidden border-2 border-blue-400 font-mono">
           {codeLines.map((line, index) => (
             <div
@@ -91,7 +91,7 @@ const BattleArena = () => {
                 animationDelay: `${line.delay}s`
               }}
             >
-              <span dangerouslySetInnerHTML={{ 
+              <span dangerouslySetInnerHTML={{
                 __html: line.text
                   .replace(/def|for|if|else|return|in|range/g, '<span style="color: #9932CC; font-weight: 600;">$&</span>')
                   .replace(/'[^']*'/g, '<span style="color: #00FF41;">$&</span>')
@@ -100,7 +100,7 @@ const BattleArena = () => {
                   .replace(/text1|text2|dp|m|n|i|j/g, '<span style="color: #FFD700;">$&</span>')
               }} />
               {index === codeLines.length - 1 && (
-                <span 
+                <span
                   className="inline-block bg-blue-400 w-0.5 h-5 ml-1"
                   style={{ animation: 'cursorBlink 1.2s step-end infinite' }}
                 ></span>
@@ -111,11 +111,11 @@ const BattleArena = () => {
       </div>
 
       {/* VS Battle Center */}
-      <div 
+      <div
         className="flex flex-col items-center relative opacity-0"
         style={{ animation: 'vsReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 3.3s' }}
       >
-        <div 
+        <div
           className="rounded-full w-36 h-36 flex items-center justify-center text-5xl font-black text-white relative"
           style={{
             background: 'linear-gradient(135deg, #FF0040 0%, #8A2BE2 50%, #00BFFF 100%)',
@@ -123,7 +123,7 @@ const BattleArena = () => {
             boxShadow: '0 0 60px #00BFFF, inset 0 0 60px rgba(255, 255, 255, 0.1)'
           }}
         >
-          <div 
+          <div
             className="absolute -top-12 bg-black/95 px-7 py-3 rounded-full font-mono text-2xl font-bold text-yellow-400 border-2 border-yellow-400"
             style={{
               boxShadow: '0 0 30px #FFD700',
@@ -134,7 +134,7 @@ const BattleArena = () => {
           </div>
           VS
         </div>
-        
+
         <div className="absolute -bottom-9 flex gap-10 font-mono text-sm">
           <div className="bg-black/90 px-5 py-2 rounded-2xl border border-purple-400 text-white backdrop-blur-[10px]">
             Speed: 102 WPM
@@ -146,7 +146,7 @@ const BattleArena = () => {
       </div>
 
       {/* Right Coder Panel */}
-      <div 
+      <div
         className="rounded-3xl p-8 border-2 border-green-400 backdrop-blur-[20px] h-[520px] relative transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)] opacity-0 transform translate-y-12 hover:transform hover:-translate-y-3 hover:scale-105"
         style={{
           background: 'linear-gradient(145deg, rgba(13, 13, 13, 0.98), rgba(26, 26, 26, 0.95))',
@@ -161,7 +161,7 @@ const BattleArena = () => {
         }}
       >
         <div className="flex items-center gap-4 mb-6 pb-4 border-b-2 border-green-400">
-          <div 
+          <div
             className="w-14 h-14 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 flex items-center justify-center text-2xl text-white font-black"
             style={{
               boxShadow: '0 0 25px #00FF41',
@@ -173,7 +173,7 @@ const BattleArena = () => {
           <div>
             <h3 className="text-xl font-bold text-white mb-1">Beta_Master</h3>
             <div className="text-sm text-green-400 font-mono flex items-center gap-2">
-              <div 
+              <div
                 className="w-2 h-2 rounded-full bg-green-400"
                 style={{ animation: 'statusBlink 1.8s ease-in-out infinite' }}
               ></div>
@@ -181,16 +181,15 @@ const BattleArena = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-black/90 rounded-2xl p-6 h-96 overflow-hidden border-2 border-green-400 font-mono">
           {testResults.map((result, index) => (
             <div
               key={index}
-              className={`text-sm leading-relaxed mb-2 opacity-0 flex items-center gap-2 ${
-                result.success ? 'text-green-400' : 
-                result.info ? 'text-cyan-400' : 
-                result.trophy ? 'text-green-400' : 'text-white'
-              }`}
+              className={`text-sm leading-relaxed mb-2 opacity-0 flex items-center gap-2 ${result.success ? 'text-green-400' :
+                  result.info ? 'text-cyan-400' :
+                    result.trophy ? 'text-green-400' : 'text-white'
+                }`}
               style={{
                 animation: `resultSlide 0.8s ease forwards`,
                 animationDelay: `${result.delay}s`

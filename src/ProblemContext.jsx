@@ -40,7 +40,7 @@ export const ProblemProvider = ({ children }) => {
       difficulty: "easy",
       source: "LeetCode"
     },
-    
+
     codeforces: {
       problemId: "1734A",
       title: "A. Select Three Sticks",
@@ -74,7 +74,7 @@ class Solution:
     def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
         # Write your solution here
         pass`,
-      
+
       javascript: `/**
  * Definition for singly-linked list.
  * function ListNode(val, next) {
@@ -90,7 +90,7 @@ class Solution:
 var mergeTwoLists = function(list1, list2) {
     // Write your solution here
 };`,
-      
+
       java: `/**
  * Definition for singly-linked list.
  * public class ListNode {
@@ -107,7 +107,7 @@ class Solution {
         return null;
     }
 }`,
-      
+
       cpp: `/**
  * Definition for singly-linked list.
  * struct ListNode {
@@ -126,7 +126,7 @@ public:
     }
 };`
     },
-    
+
     codeforces: {
       python: `n, m = map(int, input().split())
 edges = []
@@ -136,7 +136,7 @@ for _ in range(m):
 
 # Write your solution here
 `,
-      
+
       javascript: `const readline = require('readline');
 const rl = readline.createInterface({
     input: process.stdin,
@@ -156,7 +156,7 @@ rl.on('line', (line) => {
     
     // Write your solution here
 });`,
-      
+
       java: `import java.util.Scanner;
 
 public class Main {
@@ -177,7 +177,7 @@ public class Main {
         sc.close();
     }
 }`,
-      
+
       cpp: `#include <iostream>
 #include <vector>
 using namespace std;
@@ -204,17 +204,17 @@ int main() {
       if (e.key === 'F9') {
         const newProblem = currentProblem === 'dsa' ? 'codeforces' : 'dsa';
         setCurrentProblem(newProblem);
-        showNotification(`🔄 Switched to ${newProblem.toUpperCase()} problem`, 'info');
+        showNotification(`Switched to ${newProblem.toUpperCase()} problem`, 'info');
       }
-      
+
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        showNotification('✨ Running code...', 'info');
+        showNotification('Running code...', 'info');
       }
-      
+
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Enter') {
         e.preventDefault();
-        showNotification('🚀 Submitting solution...', 'info');
+        showNotification('Submitting solution...', 'info');
       }
     };
 
@@ -225,7 +225,7 @@ int main() {
   // Welcome notification
   useEffect(() => {
     const timer = setTimeout(() => {
-      showNotification('🚀 Welcome to CodeVersus Battle Arena!', 'info');
+      showNotification('Welcome to CodeVersus Battle Arena!', 'info');
     }, 1000);
 
     return () => clearTimeout(timer);

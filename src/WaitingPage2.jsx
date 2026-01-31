@@ -9,13 +9,13 @@ const WaitingPage2 = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const hasJoinedQueue = useRef(false);
- 
+
   const { mode, topic } = location.state || {};
   const userId = sessionStorage.getItem("userId");
 
   useEffect(() => {
     document.querySelector('.main-container')?.classList.add('animate-fadeIn');
-    
+
     if (!hasJoinedQueue.current) {
       console.log("Emitting joinQueue event");
       socket.emit("joinQueue", { userId, mode, topic });
@@ -50,7 +50,7 @@ const WaitingPage2 = () => {
   }, [navigate, userId, mode, topic]);
 
   const handleCancel = () => {
-    if (window.confirm('⚠️ Are you sure you want to cancel matchmaking?')) {
+    if (window.confirm('Are you sure you want to cancel matchmaking?')) {
       console.log("Emitting cancelMatchmaking event");
       socket.emit("cancelMatchmaking", { userId, mode, topic });
     }
@@ -83,7 +83,7 @@ const WaitingPage2 = () => {
       <div className="main-container flex-1 flex justify-center items-center p-4 md:p-8 bg-radial-gradients">
         <div className="bg-gray-900/90 backdrop-blur-xl border-2 border-blue-400 rounded-2xl p-4 md:p-8 max-w-xl w-full text-center shadow-2xl animate-fadeIn">
           <h1 className="text-2xl md:text-3xl font-bold text-gradient-cyber mb-6 text-shadow-blue">
-            ⚔️ Matchmaking is in Progress ⚔️
+            Matchmaking is in Progress
           </h1>
           <div className="text-4xl md:text-5xl text-green-400 mb-6 animate-spin animate-neon-flicker">
             <FontAwesomeIcon icon={faSpinner} />

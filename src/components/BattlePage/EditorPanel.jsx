@@ -4,7 +4,7 @@ import CodeEditor from './CodeEditor';
 function EditorPanel({ onRun, onSubmit, problem, setParentCode, setParentLanguage }) {
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState('');
-  const isInitialLoad = useRef(true); // 🚩 Track first mount
+  const isInitialLoad = useRef(true);
 
   const languageMap = { python: 71, java: 62, cpp: 54 };
   const languageId = languageMap[language];
@@ -54,11 +54,11 @@ function EditorPanel({ onRun, onSubmit, problem, setParentCode, setParentLanguag
           <option value="cpp">C++</option>
         </select>
       </div>
-      <CodeEditor 
-        language={language} 
-        problemId={problem?.problemId} 
-        code={code} 
-        setCode={setCode} 
+      <CodeEditor
+        language={language}
+        problemId={problem?.problemId}
+        code={code}
+        setCode={setCode}
       />
       <div className="editor-footer flex justify-center items-center gap-5 p-5 bg-gradient-to-br from-deep-black to-charcoal border-t border-neon-green">
         <button

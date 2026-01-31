@@ -9,7 +9,7 @@ const ErrorFormatter = ({ data }) => {
         return (
             <div className="space-y-3">
                 <div className="flex items-center gap-2 text-green-400 text-lg font-semibold">
-                    <span className="text-2xl">✅</span>
+                    <i className="fas fa-check-circle text-2xl"></i>
                     <span>{message}</span>
                 </div>
                 <div className="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
@@ -41,7 +41,7 @@ const ErrorFormatter = ({ data }) => {
     if (!data.isError) {
         return (
             <div className="flex items-center gap-2 text-green-400 text-lg font-semibold">
-                <span className="text-2xl">✅</span>
+                <i className="fas fa-check-circle text-2xl"></i>
                 <span>{message}</span>
             </div>
         );
@@ -74,15 +74,15 @@ const ErrorFormatter = ({ data }) => {
     const getErrorIcon = () => {
         switch (errorType) {
             case 'Compilation Error':
-                return '🔧';
+                return <i className="fas fa-wrench"></i>;
             case 'Time Limit Exceeded':
-                return '⏱️';
+                return <i className="fas fa-clock"></i>;
             case 'Memory Limit Exceeded':
-                return '💾';
+                return <i className="fas fa-memory"></i>;
             case 'Wrong Answer':
-                return '❌';
+                return <i className="fas fa-times-circle"></i>;
             default:
-                return '⚠️';
+                return <i className="fas fa-exclamation-triangle"></i>;
         }
     };
 
@@ -187,7 +187,7 @@ const ErrorFormatter = ({ data }) => {
                 )}
 
                 <div className="mt-3 pt-3 border-t border-gray-700">
-                    <div className="text-xs text-gray-400">💡 Hint:</div>
+                    <div className="text-xs text-gray-400">Hint:</div>
                     <div className="text-sm text-gray-300 mt-1">{getHint()}</div>
                 </div>
             </div>

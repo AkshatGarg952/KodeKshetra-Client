@@ -65,7 +65,7 @@ function BattlePage() {
     }
   }, [isWaiting, battleNote]);
 
-  // --- Timer logic ---
+  // Countdown timer that auto-submits code when time expires
   useEffect(() => {
     if (isWaiting || battleNote) return;
 
@@ -75,6 +75,7 @@ function BattlePage() {
     intervalRef.current = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
+          // Time's up - automatically submit current code
           const battleDetails = { battleId: battle.battleId, timeRemaining: 0, language: parentLanguage };
           socket.emit("battleEnded", { battleDetails, userId, code: parentCode, roomId });
           setIsWaiting(true);
@@ -124,7 +125,7 @@ function BattlePage() {
 
   const handleRunCode = async (code, language, problem) => {
     setActiveTab("output");
-    setOutput(<div className="text-gray-400">Running... ⏳</div>);
+    setOutput(<div className="text-gray-400">Running...</div>);
     try {
       const response = await fetch(`${import.meta.env.VITE_CODE_RUNNER_URL}/run`, {
         method: "POST",
@@ -138,9 +139,9 @@ function BattlePage() {
       setOutput(<ErrorFormatter data={data} />);
 
       if (data.isError) {
-        addNotification(`⚠️ ${data.errorType}`, "error");
+        addNotification(`${data.errorType}`, "error");
       } else {
-        addNotification("✨ All test cases passed", "success");
+        addNotification("All test cases passed", "success");
       }
     } catch (err) {
       console.error(err);
@@ -150,14 +151,14 @@ function BattlePage() {
           <div className="text-sm">{err.message}</div>
         </div>
       );
-      addNotification("⚠️ Failed to execute code", "error");
+      addNotification("Failed to execute code", "error");
     }
   };
 
 
   const handleSubmit = async (code, language, problem) => {
     setActiveTab("output");
-    setOutput(<div className="text-gray-400">Submitting... ⏳</div>);
+    setOutput(<div className="text-gray-400">Submitting...</div>);
     try {
       const response = await fetch(`${import.meta.env.VITE_CODE_RUNNER_URL}/submit`, {
         method: "POST",
@@ -172,7 +173,7 @@ function BattlePage() {
       if (data.isError) {
         addNotification(`${data.errorType}`, "error");
       } else {
-        addNotification("🎉 All test cases passed successfully!", "success");
+        addNotification("All test cases passed successfully!", "success");
         emitBattleEnded(code, language);
       }
     } catch (err) {
@@ -183,7 +184,7 @@ function BattlePage() {
           <div className="text-sm">{err.message}</div>
         </div>
       );
-      addNotification("⚠️ Failed to submit code", "error");
+      addNotification("Failed to submit code", "error");
     }
   };
 
@@ -220,7 +221,7 @@ function BattlePage() {
               <Fireworks />
               <div className="animate-scaleIn">
                 <div className="mb-6">
-                  <div className="text-8xl animate-bounce-slow">🏆</div>
+                  <div className="text-8xl animate-bounce-slow"><i className="fas fa-trophy"></i></div>
                 </div>
                 <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-green-400 to-emerald-500 mb-6 animate-slideDown">
                   VICTORY!
@@ -229,7 +230,7 @@ function BattlePage() {
                   You conquered the challenge!
                 </p>
                 <div className="text-lg text-green-400 font-semibold mb-6 animate-pulse">
-                  Outstanding Performance! 🎯
+                  Outstanding Performance!
                 </div>
                 <button
                   onClick={handleDashboardRedirect}
@@ -247,7 +248,7 @@ function BattlePage() {
               <FallingTears />
               <div className="animate-scaleIn">
                 <div className="mb-6">
-                  <div className="text-8xl animate-shake">💔</div>
+                  <div className="text-8xl animate-shake"><i className="fas fa-heart-broken"></i></div>
                 </div>
                 <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-pink-500 mb-6 animate-slideDown">
                   DEFEAT
@@ -256,7 +257,7 @@ function BattlePage() {
                   Better luck next time, warrior!
                 </p>
                 <div className="text-lg text-red-400 font-semibold mb-6">
-                  Keep practicing, you'll get them next time! 💪
+                  Keep practicing, you'll get them next time!
                 </div>
                 <button
                   onClick={handleDashboardRedirect}
@@ -274,7 +275,7 @@ function BattlePage() {
               <SparkleEffect />
               <div className="animate-scaleIn">
                 <div className="mb-6">
-                  <div className="text-8xl animate-spin-slow">🤝</div>
+                  <div className="text-8xl animate-spin-slow"><i className="fas fa-handshake"></i></div>
                 </div>
                 <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-500 mb-6 animate-slideDown">
                   STALEMATE
@@ -283,7 +284,7 @@ function BattlePage() {
                   An honorable draw between equals!
                 </p>
                 <div className="text-lg text-yellow-400 font-semibold mb-6 animate-pulse">
-                  Well fought! Both warriors are evenly matched! ⚔️
+                  Well fought! Both warriors are evenly matched!
                 </div>
                 <button
                   onClick={handleDashboardRedirect}

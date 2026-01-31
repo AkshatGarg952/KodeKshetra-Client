@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 function Cursor() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [trail, setTrail] = useState([]);
-  const dashboardSymbols = ['{ }', '💻', '🚀', '⚡', '🔥', '🏆', '💎', '⭐', '🎯', '🧠'];
+  const dashboardSymbols = ['{ }', '[ ]', '< >', '( )', '//', '++', '==', '!=', '->', '=>'];
   let symbolIndex = 0;
 
   useEffect(() => {
