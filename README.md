@@ -1,6 +1,6 @@
-# ⚔️ KodeKshetra (Client)
+# KodeKshetra (Client)
 
-> 🎮 Frontend for the real-time coding battle platform — built with **React.js**, **TailwindCSS**, and **Socket.io**.
+> Frontend for the real-time coding battle platform — built with **React.js**, **TailwindCSS**, and **Socket.io**.
 
 [![React](https://img.shields.io/badge/Frontend-React.js-blue?style=flat-square)](https://react.dev/)
 [![TailwindCSS](https://img.shields.io/badge/UI-TailwindCSS-38B2AC?style=flat-square)](https://tailwindcss.com/)
@@ -10,29 +10,29 @@
 
 ---
 
-## 🌟 Overview
+## Overview
 
 The **KodeKshetra Client** provides a seamless interface for users to battle friends or random opponents in **real-time DSA/CP duels**.  
 It's designed with performance, interactivity, and gamification in mind — featuring badges, leaderboards, heatmaps, and beautiful animations.
 
 ---
 
-## 💎 Features
+## Features
 
-- ⚔️ **Real-time 1v1 Coding Battles** — Instant matchmaking and live duels  
-- 💻 **Built-in Code Editor** — Syntax highlighting with Prism.js
-- 🧠 **AI-integrated Test Evaluation** — Via Hidden Forces service  
-- 🏅 **Badge & XP Visualization** — Track your achievements  
-- 📊 **Leaderboards** — Rankings for 24-hour & 7-day periods  
-- 🔥 **90-Day Heatmap** — Visual activity tracker  
-- 👤 **User Dashboard** — View streaks, stats, and profile  
-- 🎨 **Animated UI** — Smooth transitions and interactive elements
-- ⚙️ **Responsive & Fast** — Built with Vite + TailwindCSS
-- 🔌 **Real-time Communication** — Socket.io for live updates
+- **Real-time 1v1 Coding Battles** — Instant matchmaking and live duels  
+- **Built-in Code Editor** — Syntax highlighting with Prism.js
+- **AI-integrated Test Evaluation** — Via Hidden Forces service  
+- **Badge & XP Visualization** — Track your achievements  
+- **Leaderboards** — Rankings for 24-hour & 7-day periods  
+- **90-Day Heatmap** — Visual activity tracker  
+- **User Dashboard** — View streaks, stats, and profile  
+- **Animated UI** — Smooth transitions and interactive elements
+- **Responsive & Fast** — Built with Vite + TailwindCSS
+- **Real-time Communication** — Socket.io for live updates
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 KodeKshetra-Client/
@@ -83,7 +83,7 @@ KodeKshetra-Client/
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 ### Prerequisites
 
@@ -144,7 +144,7 @@ This enables client-side routing for React Router.
 
 ---
 
-## 🎯 Key Components
+## Key Components
 
 ### Context Providers
 
@@ -204,7 +204,7 @@ const { currentProblem, setProblem } = useProblem();
 
 ---
 
-## 🔌 Socket.io Integration
+## Socket.io Integration
 
 The client connects to the server via Socket.io for real-time features:
 
@@ -246,7 +246,7 @@ socket.on('battleResult', (status) => {
 
 ---
 
-## 🎨 Styling
+## Styling
 
 ### TailwindCSS
 
@@ -267,7 +267,7 @@ Additional styling in component-specific CSS files:
 
 ---
 
-## 🚀 Development Workflow
+## Development Workflow
 
 ### Available Scripts
 
@@ -307,7 +307,7 @@ import 'prismjs/components/prism-cpp';
 
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
 | Component | Technology |
 |-----------|------------|
@@ -324,7 +324,7 @@ import 'prismjs/components/prism-cpp';
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -374,7 +374,7 @@ Syntax highlighting not working
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 | Landing Page | Battle Arena | Dashboard | Leaderboard |
 |:------------:|:------------:|:---------:|:-----------:|
@@ -382,7 +382,7 @@ Syntax highlighting not working
 
 ---
 
-## 🔗 Related Repositories
+## Related Repositories
 
 - [KodeKshetra Server](https://github.com/AkshatGarg952/KodeKshetra-Server) - Backend microservice
 - [Code-Runner](https://github.com/AkshatGarg952/Code-Runner) - Code execution service
@@ -390,13 +390,13 @@ Syntax highlighting not working
 
 ---
 
-## 📜 License
+## License
 
 Licensed under the **MIT License**.
 
 ---
 
-## 💡 Acknowledgements
+## Acknowledgements
 
 - [Judge0](https://judge0.com/) - Code execution engine
 - [Vercel](https://vercel.com/) - Deployment platform
@@ -407,11 +407,11 @@ Licensed under the **MIT License**.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Akshat Garg**
 - GitHub: [@AkshatGarg952](https://github.com/AkshatGarg952)
 
 ---
 
-⭐ Star this repository if you find it helpful!
+Star this repository if you find it helpful!
