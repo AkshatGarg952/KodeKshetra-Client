@@ -6,23 +6,22 @@ import { useNavigate } from 'react-router-dom';
 function JoinRoomModal({ activeModal, hideModal, showNotification }) {
   const [roomId, setRoomId] = useState('');
   const navigate = useNavigate();
+
   const handleJoin = () => {
-  const userId = sessionStorage.getItem("userId");
-  console.log(userId);  
+    const userId = sessionStorage.getItem("userId");
+
     if (roomId.trim() && userId) {
       hideModal('join-room-modal');
       showNotification(`Joining room: ${roomId}`, 'success');
       setRoomId('');
-      navigate("/waitingpage", { 
-      state: { roomId ,
-        battle:null
-      },
-      replace: true, 
-    });
-
-
+      navigate("/waitingpage", {
+        state: {
+          roomId,
+          battle: null
+        },
+        replace: true,
+      });
     } else {
-      console.log("Missing roomId or userId", { roomId, userId });
       showNotification('Please enter a valid Room ID', 'error');
     }
   };

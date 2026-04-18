@@ -1,12 +1,20 @@
 import React from 'react';
 
 function QuestionPanel({ problem, activeTab, setActiveTab, output }) {
-  
+  const escapeHtml = (text) =>
+    String(text).replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[char]));
+
   const renderProblemContent = () => {
     const safeFormat = (text) => {
       if (typeof text !== 'string') return '';
       
-      return text
+      return escapeHtml(text)
         .replace(/\r?\n/g, '<br />')
         .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
         .replace(/^\s*-\s*/gm, '• ') // Convert dashes to bullet points

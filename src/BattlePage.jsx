@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./components/BattlePage/Navbar";
 import QuestionPanel from "./components/BattlePage/QuestionPanel";
@@ -6,17 +6,18 @@ import EditorPanel from "./components/BattlePage/EditorPanel";
 import Notification from "./components/BattlePage/Notification";
 import ErrorFormatter from "./components/BattlePage/ErrorFormatter";
 import { socket } from "./components/socket.js";
+import { SERVER_URL } from "./config.js";
 
 
 function BattlePage() {
   const location = useLocation();
   const navigate = useNavigate();
   const intervalRef = useRef(null);
+  const hasAutoSubmittedRef = useRef(false);
 
   const [parentCode, setParentCode] = useState("");
   const [parentLanguage, setParentLanguage] = useState("python");
 
-  // --- Persistent battle and room data ---
   const getInitialBattle = () =>
     location.state?.battle ||
     JSON.parse(sessionStorage.getItem("battleData") || "{}");
@@ -25,16 +26,10 @@ function BattlePage() {
     location.state?.roomId ||
     JSON.parse(sessionStorage.getItem("roomId") || "null");
 
-  // --- Core states ---
   const [activeTab, setActiveTab] = useState("problem");
   const [output, setOutput] = useState("");
   const [notifications, setNotifications] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
-  const [timeRemaining, setTimeRemaining] = useState(() => {
-    const saved = sessionStorage.getItem("userTimer");
-    return saved ? JSON.parse(saved) : 1800;
-  });
 
   const [isWaiting, setIsWaiting] = useState(() => {
     return sessionStorage.getItem("isWaiting") === "true";
@@ -44,7 +39,6 @@ function BattlePage() {
     return sessionStorage.getItem("battleResultNote") || "";
   });
 
-  // --- Sync battle data ---
   useEffect(() => {
     const battle = location.state?.battle;
     const roomId = location.state?.roomId;
@@ -53,46 +47,62 @@ function BattlePage() {
       sessionStorage.setItem("roomId", JSON.stringify(roomId));
   }, [location.state]);
 
-  const battle = useMemo(() => getInitialBattle(), [location.state?.battle]);
-  const problem = useMemo(() => battle?.question || {}, [battle]);
-  const roomId = useMemo(() => getInitialRoomId(), [location.state?.roomId]);
-  const userId = useMemo(() => sessionStorage.getItem("userId"), []);
 
-  // Show modal with slight delay for animation
+
+  const battle = getInitialBattle();
+  const problem = battle?.question || {};
+  const roomId = getInitialRoomId();
+  const userId = sessionStorage.getItem("userId");
+  const battleDurationSeconds = Number(battle?.battleDurationSeconds || 1800);
+  const battleEndsAt = Number(battle?.battleEndsAt || 0);
+
+  const getSyncedTimeRemaining = () => {
+    if (battleEndsAt > 0) {
+      return Math.max(0, Math.ceil((battleEndsAt - Date.now()) / 1000));
+    }
+
+    return battleDurationSeconds;
+  };
+
+  const [timeRemaining, setTimeRemaining] = useState(getSyncedTimeRemaining);
+
+  useEffect(() => {
+    setTimeRemaining(getSyncedTimeRemaining());
+  }, [battleEndsAt, battleDurationSeconds]);
+
   useEffect(() => {
     if (isWaiting || battleNote) {
-      setTimeout(() => setShowModal(true), 50);
+      const timeoutId = setTimeout(() => setShowModal(true), 50);
+      return () => clearTimeout(timeoutId);
     }
+
+    setShowModal(false);
   }, [isWaiting, battleNote]);
 
-  // Countdown timer that auto-submits code when time expires
   useEffect(() => {
     if (isWaiting || battleNote) return;
 
     if (intervalRef.current) clearInterval(intervalRef.current);
-    if (timeRemaining <= 0) return;
+    if (getSyncedTimeRemaining() <= 0) return;
 
     intervalRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          // Time's up - automatically submit current code
+      const syncedTimeRemaining = getSyncedTimeRemaining();
+      setTimeRemaining(syncedTimeRemaining);
+
+      if (syncedTimeRemaining <= 0 && !hasAutoSubmittedRef.current) {
+        hasAutoSubmittedRef.current = true;
+        if (battle?.battleId) {
           const battleDetails = { battleId: battle.battleId, timeRemaining: 0, language: parentLanguage };
           socket.emit("battleEnded", { battleDetails, userId, code: parentCode, roomId });
           setIsWaiting(true);
           sessionStorage.setItem("isWaiting", "true");
-          sessionStorage.setItem("userTimer", "0");
-          return 0;
         }
-        const newVal = prev - 1;
-        sessionStorage.setItem("userTimer", JSON.stringify(newVal));
-        return newVal;
-      });
+      }
     }, 1000);
 
     return () => clearInterval(intervalRef.current);
-  }, [timeRemaining, isWaiting, battleNote]);
+  }, [battle?.battleId, isWaiting, battleNote, parentLanguage, parentCode, roomId, userId, battleEndsAt, battleDurationSeconds]);
 
-  // --- Listen for battle result ---
   useEffect(() => {
     const handleBattleResult = (note) => {
       setBattleNote(note);
@@ -105,7 +115,6 @@ function BattlePage() {
     return () => socket.off("battleResult", handleBattleResult);
   }, []);
 
-  // --- Add notifications ---
   const addNotification = (message, type) => {
     const id = Date.now();
     setNotifications((prev) => [...prev, { id, message, type }]);
@@ -115,9 +124,13 @@ function BattlePage() {
     );
   };
 
-  // --- Helper: Emit battle ended ---
   const emitBattleEnded = (code, language) => {
-    const battleDetails = { battleId: battle.battleId, timeRemaining: timeRemaining, language: language };
+    hasAutoSubmittedRef.current = true;
+    const battleDetails = {
+      battleId: battle.battleId,
+      timeRemaining: getSyncedTimeRemaining(),
+      language: language
+    };
     socket.emit("battleEnded", { battleDetails, userId, code, roomId });
     setIsWaiting(true);
     sessionStorage.setItem("isWaiting", "true");
@@ -127,14 +140,13 @@ function BattlePage() {
     setActiveTab("output");
     setOutput(<div className="text-gray-400">Running...</div>);
     try {
-      const response = await fetch(`${import.meta.env.VITE_CODE_RUNNER_URL}/run`, {
+      const response = await fetch(`${SERVER_URL}/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
       });
       if (!response.ok) throw new Error(`Server Error: ${response.status}`);
       const data = await response.json();
-      console.log("received data", data);
 
       setOutput(<ErrorFormatter data={data} />);
 
@@ -155,12 +167,11 @@ function BattlePage() {
     }
   };
 
-
   const handleSubmit = async (code, language, problem) => {
     setActiveTab("output");
     setOutput(<div className="text-gray-400">Submitting...</div>);
     try {
-      const response = await fetch(`${import.meta.env.VITE_CODE_RUNNER_URL}/submit`, {
+      const response = await fetch(`${SERVER_URL}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language, problem }),
@@ -188,8 +199,6 @@ function BattlePage() {
     }
   };
 
-
-  // --- Helper: Determine battle outcome ---
   const getBattleOutcome = () => {
     if (!battleNote) return "waiting";
 
@@ -200,12 +209,10 @@ function BattlePage() {
     return "waiting";
   };
 
-  // --- Render waiting/result modal ---
   const renderWaitingModal = () => {
     const handleDashboardRedirect = () => {
       sessionStorage.removeItem("battleData");
       sessionStorage.removeItem("roomId");
-      sessionStorage.removeItem("userTimer");
       sessionStorage.removeItem("isWaiting");
       sessionStorage.removeItem("battleResultNote");
       navigate("/dashboard", { replace: true });
@@ -340,7 +347,6 @@ function BattlePage() {
     );
   };
 
-  // --- Main battle interface ---
   return (
     <div className="flex flex-col h-screen">
       <Navbar
@@ -370,9 +376,6 @@ function BattlePage() {
   );
 }
 
-// --- Visual Effects ---
-
-// Enhanced Fireworks Effect for Winning
 const Fireworks = () => {
   const canvasRef = useRef(null);
   const animationIdRef = useRef(null);
@@ -458,7 +461,6 @@ const Fireworks = () => {
 
       draw() {
         if (!this.exploded) {
-          // Draw trail
           this.trail.forEach((point, index) => {
             ctx.globalAlpha = (index / this.trail.length) * 0.5;
             ctx.fillStyle = this.color;
@@ -467,7 +469,6 @@ const Fireworks = () => {
             ctx.fill();
           });
 
-          // Draw rocket
           ctx.globalAlpha = 1;
           ctx.fillStyle = this.color;
           ctx.shadowBlur = 10;
@@ -517,7 +518,6 @@ const Fireworks = () => {
   return null;
 };
 
-// Falling Tears Effect for Loss
 const FallingTears = () => {
   const canvasRef = useRef(null);
   const animationIdRef = useRef(null);
@@ -608,7 +608,6 @@ const FallingTears = () => {
   return null;
 };
 
-// Sparkle/Glitter Effect for Draw
 const SparkleEffect = () => {
   const canvasRef = useRef(null);
   const animationIdRef = useRef(null);

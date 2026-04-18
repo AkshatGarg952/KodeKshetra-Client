@@ -1,53 +1,86 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faCheckCircle, faCircleNotch, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate, useLocation, replace } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { socket } from "./components/socket.js";
 import "./index.css";
 
 const WaitingPage1 = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const hasJoinedRoom = useRef(false);
 
   const { roomId, battle } = location.state || {};
-  const { mode, topic } = battle || {}
-  const userId = sessionStorage.getItem("userId")
+  const userId = sessionStorage.getItem("userId");
 
   useEffect(() => {
     document.querySelector('.main-container')?.classList.add('animate-fadeIn');
-    socket.emit("joinBattleRoom", {
-      battle,
-      userId,
-      roomId
-    });
 
-    socket.on("battleStart", ({ question, battleId }) => {
-      console.log("Battle started with question:", question);
+    if (!roomId || !userId) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+
+    const handleBattleStart = ({
+      question,
+      battleId,
+      mode,
+      topic,
+      battleEndsAt,
+      battleStartedAt,
+      battleDurationSeconds,
+      roomId: activeRoomId
+    }) => {
       navigate("/battlepage", {
         state: {
-          battle: { mode, topic, question, battleId },
-          roomId,
+          battle: {
+            mode: mode || battle?.mode,
+            topic: topic || battle?.topic,
+            question,
+            battleId,
+            battleEndsAt,
+            battleStartedAt,
+            battleDurationSeconds,
+          },
+          roomId: activeRoomId || roomId,
         },
         replace: true
       });
-    });
+    };
+
+    const handleBattleJoinError = ({ message }) => {
+      alert(message || 'Unable to join the battle room.');
+      navigate("/dashboard", { replace: true });
+    };
+
+    socket.on("battleStart", handleBattleStart);
+    socket.on("battleJoinError", handleBattleJoinError);
+
+    if (!hasJoinedRoom.current) {
+      socket.emit("joinBattleRoom", {
+        battle,
+        userId,
+        roomId
+      });
+      hasJoinedRoom.current = true;
+    }
 
     return () => {
-      socket.off("battleStart");
+      socket.off("battleStart", handleBattleStart);
+      socket.off("battleJoinError", handleBattleJoinError);
     };
-  }, [navigate]);
+  }, [battle, navigate, roomId, userId]);
 
   const handleCancel = () => {
     if (window.confirm('Are you sure you want to leave the room?')) {
+      socket.emit("leaveBattleRoom", { userId, roomId });
       alert('Left the Room!');
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   };
 
   return (
     <div className="min-h-screen bg-black text-white font-inter flex flex-col overflow-hidden">
-      {/* Your existing JSX content remains the same */}
-      {/* Navbar */}
       <nav className="flex justify-between items-center p-4 md:p-8 bg-black/95 backdrop-blur-xl border-b-2 border-gradient-fire shadow-lg h-[70px] relative animate-neon-pulse">
         <div className="relative flex items-center">
           <span className="text-2xl md:text-[26px] font-extrabold text-gradient-void uppercase tracking-wider z-10">
@@ -68,7 +101,6 @@ const WaitingPage1 = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="main-container flex-1 flex justify-center items-center p-4 md:p-8 bg-radial-gradients">
         <div className="bg-gray-900/90 backdrop-blur-xl border-2 border-blue-400 rounded-2xl p-4 md:p-8 max-w-xl w-full text-center shadow-2xl animate-fadeIn">
           <h1 className="text-2xl md:text-3xl font-bold text-gradient-cyber mb-6 text-shadow-blue">

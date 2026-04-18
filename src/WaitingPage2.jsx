@@ -16,42 +16,69 @@ const WaitingPage2 = () => {
   useEffect(() => {
     document.querySelector('.main-container')?.classList.add('animate-fadeIn');
 
-    if (!hasJoinedQueue.current) {
-      console.log("Emitting joinQueue event");
-      socket.emit("joinQueue", { userId, mode, topic });
-      hasJoinedQueue.current = true;
+    if (!userId || !mode || !topic) {
+      navigate("/dashboard", { replace: true });
+      return;
     }
 
-    // Handle battle start
-    const handleBattleStart = ({ question, battleId }) => {
+    const handleBattleStart = ({
+      question,
+      battleId,
+      mode: battleMode,
+      topic: battleTopic,
+      battleEndsAt,
+      battleStartedAt,
+      battleDurationSeconds,
+      roomId
+    }) => {
       navigate("/battlepage", {
-        state: { battle: { topic, mode, question, battleId } },
+        state: {
+          battle: {
+            topic: battleTopic || topic,
+            mode: battleMode || mode,
+            question,
+            battleId,
+            battleEndsAt,
+            battleStartedAt,
+            battleDurationSeconds,
+          },
+          roomId: roomId || null,
+        },
         replace: true
       });
     };
 
-    // Handle cancel matchmaking response
     const handleCancelMatchmakingResponse = ({ success, message }) => {
-      console.log("Received cancel matchmaking response:", success, message);
       if (success) {
         navigate("/dashboard", { replace: true });
       } else {
-        alert(message); // Show error message from server
+        alert(message);
       }
+    };
+
+    const handleMatchmakingError = ({ message }) => {
+      alert(message || "Unable to join matchmaking right now.");
+      navigate("/dashboard", { replace: true });
     };
 
     socket.on("battleStart", handleBattleStart);
     socket.on("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
+    socket.on("matchmakingError", handleMatchmakingError);
+
+    if (!hasJoinedQueue.current) {
+      socket.emit("joinQueue", { userId, mode, topic });
+      hasJoinedQueue.current = true;
+    }
 
     return () => {
       socket.off("battleStart", handleBattleStart);
       socket.off("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
+      socket.off("matchmakingError", handleMatchmakingError);
     };
   }, [navigate, userId, mode, topic]);
 
   const handleCancel = () => {
     if (window.confirm('Are you sure you want to cancel matchmaking?')) {
-      console.log("Emitting cancelMatchmaking event");
       socket.emit("cancelMatchmaking", { userId, mode, topic });
     }
   };

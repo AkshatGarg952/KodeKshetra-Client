@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Leaderboard/Navbar';
 import CustomCursor from './components/Leaderboard/CustomCursor';
 import LeaderboardHeader from './components/Leaderboard/LeaderboardHeader';
@@ -24,13 +24,13 @@ const Leaderboard = () => {
   
   const [notifications, setNotifications] = useState([]);
 
-  const showNotification = (message, type = 'info') => {
+  const showNotification = useCallback((message, type = 'info') => {
     const id = Date.now();
-    setNotifications([...notifications, { id, message, type }]);
+    setNotifications((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     }, 3400);
-  };
+  }, []);
     
     useEffect(() => {
     sessionStorage.setItem("leaderboardState", JSON.stringify(leaderboardState));

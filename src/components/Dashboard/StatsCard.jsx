@@ -2,6 +2,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faShieldAlt , faGamepad } from '@fortawesome/free-solid-svg-icons';
 
 function StatsCard({ user, className }) {
+  const winRate = user.totalBattles > 0
+    ? ((user.wins / user.totalBattles) * 100).toFixed(1)
+    : '0.0';
+
   return (
     <div className={`dashboard-card stats-card bg-gradient-to-br from-deep-black to-slate-gray rounded-2xl border-2 border-matrix-lime/30 backdrop-blur-3xl transition-all hover:-translate-y-1 hover:border-neon-cyan hover:shadow-[0_15px_40px_rgba(0,245,255,0.2)] p-6 relative overflow-hidden ${className}`}>
       <div
@@ -27,7 +31,7 @@ function StatsCard({ user, className }) {
             </div>
             <div className="stat-label text-sm text-text-muted mb-1">Won / Lost</div>
             <div className="win-rate text-xs text-matrix-lime font-semibold">
-              {((user.wins / user.totalBattles) * 100).toFixed(1)}% Win Rate
+              {winRate}% Win Rate
             </div>
           </div>
         </div>

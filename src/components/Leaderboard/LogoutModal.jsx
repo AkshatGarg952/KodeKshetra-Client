@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaSignOutAlt } from 'react-icons/fa';
+import { SERVER_URL } from '../../config.js';
 
 const LogoutModal = ({ setShowModal, showNotification }) => {
   const closeModal = () => {
@@ -13,7 +14,7 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
       closeModal();
       const token = sessionStorage.getItem("token");
 
-      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/users/logout`, {
+      const res = await fetch(`${SERVER_URL}/api/users/logout`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

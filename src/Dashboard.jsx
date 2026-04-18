@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from './components/Dashboard/Navbar';
 import ProfileHeader from './components/Dashboard/ProfileHeader';
 import DashboardGrid from './components/Dashboard/DashboardGrid';
 import Cursor from './components/Dashboard/Cursor';
 import Notification from './components/Dashboard/Notification';
+import { ADMIN_EMAIL, SERVER_URL } from './config.js';
 import './Dashboard.css';
 
 
-// Initial state object—never mutate this directly!
 const initialState = {
   currentUser: {
     username: 'CodeWarrior_2025',
@@ -28,39 +29,26 @@ const initialState = {
 
 
 function Dashboard() {
-  if (sessionStorage.getItem("userTimer")) {
-    sessionStorage.removeItem("userTimer");
-  }
-  if (sessionStorage.getItem("python")) {
-    sessionStorage.removeItem("python");
-  }
-  if (sessionStorage.getItem("java")) {
-    sessionStorage.removeItem("java");
-  }
-  if (sessionStorage.getItem("cpp")) {
-    sessionStorage.removeItem("cpp");
-  }
-  if (sessionStorage.getItem("battleData")) {
-    sessionStorage.removeItem("battleData");
-  }
-  if (sessionStorage.getItem("isWaiting")) {
-    sessionStorage.removeItem("isWaiting");
-  }
-  if (sessionStorage.getItem("battleResultNote")) {
-    sessionStorage.removeItem("battleResultNote");
-  }
-  if (sessionStorage.getItem("roomId")) {
-    sessionStorage.removeItem("roomId");
-  }
-
-
-
-  const userId = sessionStorage.getItem("userId")
+  const userId = sessionStorage.getItem("userId");
+  const isAdminUser = (sessionStorage.getItem("userEmail") || "").toLowerCase() === ADMIN_EMAIL;
   const [dashboardState, setDashboardState] = useState(initialState);
   const [notifications, setNotifications] = useState([]);
   const [badgesHeight, setBadgesHeight] = useState(200);
-  const [badgesData, setbadgesdata] = useState([])
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [badgesData, setBadgesData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    [
+      "userTimer",
+      "python",
+      "java",
+      "cpp",
+      "battleData",
+      "isWaiting",
+      "battleResultNote",
+      "roomId",
+    ].forEach((key) => sessionStorage.removeItem(key));
+  }, []);
 
 
   const showModal = (modalId) => {
@@ -95,9 +83,9 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/users/getUserDetails/${userId}`);
+        const res = await fetch(`${SERVER_URL}/api/users/getUserDetails/${userId}`);
         const userDetails = await res.json();
-        setbadgesdata(userDetails.badgesData);
+        setBadgesData(userDetails.badgesData);
         setDashboardState((prev) => ({
           ...prev,
           currentUser: {
@@ -118,7 +106,6 @@ function Dashboard() {
       } catch (err) {
         console.error("Failed to fetch user details", err);
       } finally {
-        // Set loading to false after fetch completes
         setIsLoading(false);
       }
     };
@@ -152,7 +139,6 @@ function Dashboard() {
 
 
   useEffect(() => {
-    // Adjust badges card height responsively
     const adjustBadgesHeight = () => {
       const statsCard = document.querySelector('.stats-card');
       const badgesCard = document.querySelector('.badges-main-card');
@@ -182,9 +168,6 @@ function Dashboard() {
       }
     }));
   };
-
-
-  // Show loading UI while fetching data
   if (isLoading) {
     return (
       <div className="font-space bg-void-black text-text-primary min-h-screen flex items-center justify-center">
@@ -221,6 +204,25 @@ function Dashboard() {
             hideModal={hideModal}
             badgesCount={dashboardState.currentUser.badgesCount}
           />
+          {isAdminUser && (
+            <div className="mt-8 flex justify-end">
+              <div className="w-full max-w-md rounded-3xl border border-sky-300/30 bg-sky-400/10 p-5 shadow-[0_16px_45px_rgba(125,211,252,0.12)] backdrop-blur-xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-200/80">
+                  Admin Tools
+                </p>
+                <h3 className="mt-3 text-xl font-bold text-white">Problem Importer</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  Hidden here on purpose. Only the signed-in admin account can open the importer screen.
+                </p>
+                <Link
+                  to="/admin/importer"
+                  className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-sky-300/40 bg-sky-300/15 px-5 py-3 text-sm font-semibold text-sky-100 transition hover:bg-sky-300 hover:text-slate-950"
+                >
+                  Open Importer
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

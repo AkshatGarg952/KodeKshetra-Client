@@ -1,21 +1,25 @@
 import React, { useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCrown, faFire, faPencilAlt, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { SERVER_URL } from '../../config.js';
 
 
 function ProfileHeader({
   user,
   heatmapData = [],
-  onUpdateProfile = () => console.warn('onUpdateProfile prop not provided to ProfileHeader')
+  onUpdateProfile = () => {}
 }) {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState(user.username);
   const [selectedDate, setSelectedDate] = useState(null);
   const fileInputRef = useRef(null);
   const userId = sessionStorage.getItem("userId");
+  const token = sessionStorage.getItem("token");
 
+  const getAuthHeaders = () => ({
+    Authorization: `Bearer ${token}`,
+  });
 
-  // Handle avatar photo selection and upload
   const handleAvatarEdit = () => {
     fileInputRef.current?.click();
   };
@@ -24,52 +28,40 @@ function ProfileHeader({
   const handleAvatarChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('File size must be less than 5MB');
         return;
       }
 
-
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         alert('Please select a valid image file');
         return;
       }
 
-
-      // Create FormData and upload immediately
       const formData = new FormData();
       formData.append('ProfilePicture', file);
 
-
       try {
-        // Use the unified endpoint with user ID
-        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/users/update/${userId}`, {
+        const response = await fetch(`${SERVER_URL}/api/users/update/${userId}`, {
           method: 'PUT',
+          headers: getAuthHeaders(),
           body: formData,
         });
 
 
         if (response.ok) {
           const result = await response.json();
-          // Update the user object with new avatar URL
-          onUpdateProfile({ ...user, avatar: result.avatarUrl });
-          console.log('Profile picture updated successfully');
+          onUpdateProfile({ avatar: result.user?.profilePicture || user.avatar });
         } else {
           const error = await response.json();
-          console.error('Failed to update profile picture:', error.message);
           alert(error.message || 'Failed to update profile picture. Please try again.');
         }
       } catch (error) {
-        console.error('Error uploading profile picture:', error);
         alert('Error uploading profile picture. Please check your connection.');
       }
     }
   };
 
-
-  // Handle username editing
   const handleUsernameEdit = () => {
     setIsEditingUsername(true);
     setTempUsername(user.username);
@@ -78,7 +70,7 @@ function ProfileHeader({
 
   const handleUsernameCancel = () => {
     setIsEditingUsername(false);
-    setTempUsername(user.username); // Reset to original value
+    setTempUsername(user.username);
   };
 
 
@@ -88,48 +80,37 @@ function ProfileHeader({
       return;
     }
 
-
     if (tempUsername.trim() === user.username) {
-      // No change, just exit edit mode
       setIsEditingUsername(false);
       return;
     }
 
-
-    // Validate username (3-20 characters, alphanumeric and underscores)
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     if (!usernameRegex.test(tempUsername.trim())) {
       alert('Username must be 3-20 characters and contain only letters, numbers, and underscores');
       return;
     }
 
-
-    // Create FormData and send to backend
     const formData = new FormData();
     formData.append('username', tempUsername.trim());
 
-
     try {
-      // Use the unified endpoint with user ID
-      const response = await fetch(`http://localhost:5000/api/users/update/${userId}`, {
+      const response = await fetch(`${SERVER_URL}/api/users/update/${userId}`, {
         method: 'PUT',
+        headers: getAuthHeaders(),
         body: formData,
       });
 
 
       if (response.ok) {
-        const result = await response.json();
-        // Update the user in parent component
+        await response.json();
         onUpdateProfile({ ...user, username: tempUsername.trim() });
         setIsEditingUsername(false);
-        console.log('Username updated successfully');
       } else {
         const error = await response.json();
-        console.error('Failed to update username:', error.message);
         alert(error.message || 'Failed to update username. Please try again.');
       }
     } catch (error) {
-      console.error('Error updating username:', error);
       alert('Error updating username. Please check your connection.');
     }
   };

@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+import { SERVER_URL } from "../config.js";
 
 let socket = null;
 
@@ -6,16 +7,14 @@ const establishSocketConnection = () => {
   const userId = sessionStorage.getItem("userId");
 
   if (!userId) {
-    console.error("User ID not found in sessionStorage");
     return socket;
   }
 
   if (socket && socket.connected) {
-    console.log("Socket already connected");
     return socket;
   }
 
-  socket = io(`${import.meta.env.VITE_SERVER_URL}`, {
+  socket = io(SERVER_URL, {
     reconnection: true,
     transports: ["websocket"],
     query: {
@@ -25,22 +24,12 @@ const establishSocketConnection = () => {
 
   window.socket = socket;
 
-  socket.on("connect", () => {
-    console.log("Socket connected:", socket.id);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Socket disconnected");
-  });
-
   return socket;
 };
 
-// AUTO-RECONNECT: Check if user is already logged in on page reload
 if (typeof window !== 'undefined') {
   const userId = sessionStorage.getItem("userId");
   if (userId) {
-    console.log("User already logged in, re-establishing socket connection...");
     establishSocketConnection();
   }
 }

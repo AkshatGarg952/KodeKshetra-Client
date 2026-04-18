@@ -1,6 +1,7 @@
 import React, { forwardRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { establishSocketConnection } from "../socket.js";
+import { SERVER_URL } from "../../config.js";
 
 const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
       formData.append("leetcodeId", leetcodeId);
       formData.append("codeforcesId", codeforcesId);
 
-      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/users/register`, {
+      const res = await fetch(`${SERVER_URL}/api/users/register`, {
         method: "POST",
         body: formData,
       });
@@ -59,8 +60,9 @@ const RegisterForm = forwardRef(({ setShowLogin, setShowRegister }, ref) => {
       const data = await res.json();
 
       if (res.ok) {
-        sessionStorage.setItem("userId", data.n._id);
+        sessionStorage.setItem("userId", data.user._id);
         sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("userEmail", data.user.email);
         establishSocketConnection();
         setShowRegister(false);
         setShowLogin(true);

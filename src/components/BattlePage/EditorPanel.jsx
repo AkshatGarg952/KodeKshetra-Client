@@ -28,7 +28,7 @@ function EditorPanel({ onRun, onSubmit, problem, setParentCode, setParentLanguag
     setParentCode(finalCode);
     setParentLanguage(language);
     isInitialLoad.current = true;
-  }, [problem, language]);
+  }, [problem, language, setParentCode, setParentLanguage]);
 
   // Save code in sessionStorage, except for the initial mount after code is restored
   useEffect(() => {
