@@ -146,6 +146,10 @@ function BattlePage() {
   };
 
   const emitBattleEnded = (code, language) => {
+    if (hasAutoSubmittedRef.current || isWaiting || battleNote) {
+      return;
+    }
+
     hasAutoSubmittedRef.current = true;
     const battleDetails = {
       battleId: battle.battleId,
@@ -189,6 +193,10 @@ function BattlePage() {
   };
 
   const handleSubmit = async (code, language, problem) => {
+    if (hasAutoSubmittedRef.current || isWaiting || battleNote) {
+      return;
+    }
+
     setActiveTab("output");
     setOutput(<div className="text-gray-400">Submitting...</div>);
     try {

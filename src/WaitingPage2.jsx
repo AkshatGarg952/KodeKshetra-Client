@@ -10,6 +10,7 @@ const WaitingPage2 = () => {
   const navigate = useNavigate();
   const hasJoinedQueue = useRef(false);
   const socketRef = useRef(null);
+  const battleStartedRef = useRef(false);
 
   const { mode, topic, flowType } = location.state || {};
   const userId = sessionStorage.getItem("userId");
@@ -43,6 +44,7 @@ const WaitingPage2 = () => {
       battleDurationSeconds,
       roomId
     }) => {
+      battleStartedRef.current = true;
       navigate("/battlepage", {
         state: {
           battle: {
@@ -111,6 +113,9 @@ const WaitingPage2 = () => {
 
       if (isAIBattle) {
         aiSafetyTimeoutId = setTimeout(() => {
+          if (!battleStartedRef.current) {
+            activeSocket.emit("cancelAIBattleSetup", { userId });
+          }
           alert("AI battle setup is taking too long. Please try again after confirming the backend services are running.");
           navigate("/dashboard", { replace: true });
         }, 20000);
@@ -128,11 +133,15 @@ const WaitingPage2 = () => {
       if (aiSafetyTimeoutId) {
         clearTimeout(aiSafetyTimeoutId);
       }
+      if (isAIBattle && !battleStartedRef.current) {
+        activeSocket.emit("cancelAIBattleSetup", { userId });
+      }
     };
   }, [navigate, userId, mode, topic, isAIBattle]);
 
   const handleCancel = () => {
     if (isAIBattle) {
+      socketRef.current?.emit("cancelAIBattleSetup", { userId });
       navigate("/dashboard", { replace: true });
       return;
     }
