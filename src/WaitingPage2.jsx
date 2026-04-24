@@ -11,8 +11,9 @@ const WaitingPage2 = () => {
   const hasJoinedQueue = useRef(false);
   const socketRef = useRef(null);
 
-  const { mode, topic } = location.state || {};
+  const { mode, topic, flowType } = location.state || {};
   const userId = sessionStorage.getItem("userId");
+  const isAIBattle = flowType === 'ai';
 
   useEffect(() => {
     document.querySelector('.main-container')?.classList.add('animate-fadeIn');
@@ -35,6 +36,8 @@ const WaitingPage2 = () => {
       battleId,
       mode: battleMode,
       topic: battleTopic,
+      battleType,
+      opponent,
       battleEndsAt,
       battleStartedAt,
       battleDurationSeconds,
@@ -47,6 +50,8 @@ const WaitingPage2 = () => {
             mode: battleMode || mode,
             question,
             battleId,
+            battleType,
+            opponent,
             battleEndsAt,
             battleStartedAt,
             battleDurationSeconds,
@@ -80,10 +85,20 @@ const WaitingPage2 = () => {
     activeSocket.on("matchmakingError", handleMatchmakingError);
     activeSocket.on("connect_error", handleConnectError);
 
+    let aiSafetyTimeoutId = null;
+
     let onConnectJoin = null;
     if (!hasJoinedQueue.current) {
       const emitJoinQueue = () => {
-        activeSocket.emit("joinQueue", { userId, mode, topic });
+        if (isAIBattle) {
+          activeSocket.emit("startAIBattle", {
+            userId,
+            mode,
+            topic
+          });
+        } else {
+          activeSocket.emit("joinQueue", { userId, mode, topic });
+        }
         hasJoinedQueue.current = true;
       };
 
@@ -92,6 +107,13 @@ const WaitingPage2 = () => {
       } else {
         onConnectJoin = emitJoinQueue;
         activeSocket.once("connect", onConnectJoin);
+      }
+
+      if (isAIBattle) {
+        aiSafetyTimeoutId = setTimeout(() => {
+          alert("AI battle setup is taking too long. Please try again after confirming the backend services are running.");
+          navigate("/dashboard", { replace: true });
+        }, 20000);
       }
     }
 
@@ -103,10 +125,18 @@ const WaitingPage2 = () => {
       if (onConnectJoin) {
         activeSocket.off("connect", onConnectJoin);
       }
+      if (aiSafetyTimeoutId) {
+        clearTimeout(aiSafetyTimeoutId);
+      }
     };
-  }, [navigate, userId, mode, topic]);
+  }, [navigate, userId, mode, topic, isAIBattle]);
 
   const handleCancel = () => {
+    if (isAIBattle) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+
     if (window.confirm('Are you sure you want to cancel matchmaking?')) {
       socketRef.current?.emit("cancelMatchmaking", { userId, mode, topic });
     }
@@ -139,13 +169,15 @@ const WaitingPage2 = () => {
       <div className="main-container flex-1 flex justify-center items-center p-4 md:p-8 bg-radial-gradients">
         <div className="bg-gray-900/90 backdrop-blur-xl border-2 border-blue-400 rounded-2xl p-4 md:p-8 max-w-xl w-full text-center shadow-2xl animate-fadeIn">
           <h1 className="text-2xl md:text-3xl font-bold text-gradient-cyber mb-6 text-shadow-blue">
-            Matchmaking is in Progress
+            {isAIBattle ? 'Preparing AI Battle' : 'Matchmaking is in Progress'}
           </h1>
           <div className="text-4xl md:text-5xl text-green-400 mb-6 animate-spin animate-neon-flicker">
             <FontAwesomeIcon icon={faSpinner} />
           </div>
           <div className="text-base md:text-lg text-gray-400 mb-8 font-mono">
-            Waiting a suitable opponent for you...
+            {isAIBattle
+              ? 'HiddenForces is preparing your AI opponent and validating its solve attempt...'
+              : 'Waiting a suitable opponent for you...'}
           </div>
           <div className="bg-black/80 border-2 border-pink-600 rounded-xl p-5 mb-8 shadow-glow-pink">
             <div className="flex items-center gap-3 text-base md:text-lg text-white mb-3">
@@ -154,7 +186,7 @@ const WaitingPage2 = () => {
             </div>
             <div className="flex items-center gap-3 text-base md:text-lg text-white">
               <FontAwesomeIcon icon={faCircleNotch} className="text-xl text-gray-500 animate-pulse" />
-              <span>Opponent (Searching...)</span>
+              <span>{isAIBattle ? 'AI Opponent (Solving...)' : 'Opponent (Searching...)'}</span>
             </div>
           </div>
           <button
@@ -162,7 +194,7 @@ const WaitingPage2 = () => {
             onClick={handleCancel}
           >
             <FontAwesomeIcon icon={faTimesCircle} />
-            Cancel Matchmaking
+            {isAIBattle ? 'Back to Dashboard' : 'Cancel Matchmaking'}
             <div className="btn-glow rounded-xl"></div>
           </button>
         </div>

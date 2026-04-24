@@ -704,7 +704,7 @@ const Hero = () => {
       </div>
 
       {/* ENHANCED CSS Animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes warriorFloat {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-15px) rotate(-1.5deg); }

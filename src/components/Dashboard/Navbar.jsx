@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrophy, faDoorOpen, faPlusCircle, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTrophy, faDoorOpen, faPlusCircle, faRobot, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import LogoutModal from './Logout.jsx';
@@ -54,6 +54,14 @@ function Navbar({ showModal, showNotification }) {
           >
             <FontAwesomeIcon icon={faPlusCircle} />
             <span className="hidden sm:inline">Create Room</span>
+          </button>
+
+          <button
+            onClick={() => showModal('ai-battle-modal')}
+            className="nav-btn ai-battle-btn flex items-center gap-2 px-4 py-3 rounded-xl bg-sky-400/10 text-sky-300 border-2 border-sky-300 font-semibold text-sm transition-all hover:bg-sky-300 hover:text-void-black hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(125,211,252,0.45)]"
+          >
+            <FontAwesomeIcon icon={faRobot} />
+            <span className="hidden sm:inline">AI Battle</span>
           </button>
 
           <button

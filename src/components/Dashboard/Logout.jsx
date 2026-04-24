@@ -65,7 +65,7 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes scaleIn {
           0% { transform: scale(0.8); opacity: 0; }
           100% { transform: scale(1); opacity: 1; }

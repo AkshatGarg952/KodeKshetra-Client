@@ -7,6 +7,7 @@ import Notification from "./components/BattlePage/Notification";
 import ErrorFormatter from "./components/BattlePage/ErrorFormatter";
 import { socket } from "./components/socket.js";
 import { SERVER_URL } from "./config.js";
+import AITransparencyGuide from "./components/AITransparencyGuide.jsx";
 
 
 function BattlePage() {
@@ -38,6 +39,13 @@ function BattlePage() {
   const [battleNote, setBattleNote] = useState(() => {
     return sessionStorage.getItem("battleResultNote") || "";
   });
+  const [battleResultDetails, setBattleResultDetails] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem("battleResultDetails") || "null");
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
     const battle = location.state?.battle;
@@ -55,6 +63,8 @@ function BattlePage() {
   const userId = sessionStorage.getItem("userId");
   const battleDurationSeconds = Number(battle?.battleDurationSeconds || 1800);
   const battleEndsAt = Number(battle?.battleEndsAt || 0);
+  const isAIBattle = battle?.battleType === "ai";
+  const opponent = battle?.opponent || null;
 
   const getSyncedTimeRemaining = () => {
     if (battleEndsAt > 0) {
@@ -105,8 +115,19 @@ function BattlePage() {
 
   useEffect(() => {
     const handleBattleResult = (note) => {
-      setBattleNote(note);
-      sessionStorage.setItem("battleResultNote", note);
+      const normalizedNote = typeof note === "string" ? note : (note?.result || "");
+
+      setBattleNote(normalizedNote);
+      sessionStorage.setItem("battleResultNote", normalizedNote);
+
+      if (note && typeof note === "object") {
+        setBattleResultDetails(note);
+        sessionStorage.setItem("battleResultDetails", JSON.stringify(note));
+      } else {
+        setBattleResultDetails(null);
+        sessionStorage.removeItem("battleResultDetails");
+      }
+
       setIsWaiting(false);
       sessionStorage.removeItem("isWaiting");
     };
@@ -215,12 +236,30 @@ function BattlePage() {
       sessionStorage.removeItem("roomId");
       sessionStorage.removeItem("isWaiting");
       sessionStorage.removeItem("battleResultNote");
+      sessionStorage.removeItem("battleResultDetails");
       navigate("/dashboard", { replace: true });
     };
 
     const outcome = getBattleOutcome();
 
     const renderContent = () => {
+      const aiComparison = battleResultDetails && isAIBattle ? (
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+          <div className="text-xs uppercase tracking-[0.3em] text-cyan-300/80">AI Battle Breakdown</div>
+            <div className="mt-3 text-sm text-slate-200">
+              <div className="mb-2 font-semibold text-white">{battleResultDetails.reason}</div>
+              <div>You: {battleResultDetails.userResult?.passedCases ?? 0} passed, finish {battleResultDetails.userResult?.finishTimeSeconds ?? 0}s</div>
+              <div>AI: {battleResultDetails.aiResult?.passedCases ?? 0} passed, finish {battleResultDetails.aiResult?.finishTimeSeconds ?? 0}s</div>
+              <div className="mt-1 text-cyan-300">AI strategy: {battleResultDetails.aiResult?.strategy || "unknown"}</div>
+              <div className="mt-1 text-cyan-200/90">
+                AI attempts: {battleResultDetails.aiResult?.attemptsUsed ?? 0}
+                {battleResultDetails.aiResult?.maxAttempts ? ` / ${battleResultDetails.aiResult.maxAttempts}` : ""}
+                {battleResultDetails.aiResult?.status ? ` (${battleResultDetails.aiResult.status})` : ""}
+              </div>
+            </div>
+          </div>
+      ) : null;
+
       switch (outcome) {
         case "won":
           return (
@@ -239,6 +278,7 @@ function BattlePage() {
                 <div className="text-lg text-green-400 font-semibold mb-6 animate-pulse">
                   Outstanding Performance!
                 </div>
+                {aiComparison}
                 <button
                   onClick={handleDashboardRedirect}
                   className="mt-8 px-10 py-4 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 text-white font-bold text-lg rounded-xl hover:from-green-600 hover:via-emerald-600 hover:to-teal-700 transition-all transform hover:scale-110 hover:rotate-1 shadow-2xl animate-fadeInUp animation-delay-500 border-2 border-green-400"
@@ -266,6 +306,7 @@ function BattlePage() {
                 <div className="text-lg text-red-400 font-semibold mb-6">
                   Keep practicing, you'll get them next time!
                 </div>
+                {aiComparison}
                 <button
                   onClick={handleDashboardRedirect}
                   className="mt-8 px-10 py-4 bg-gradient-to-r from-red-500 via-rose-500 to-pink-600 text-white font-bold text-lg rounded-xl hover:from-red-600 hover:via-rose-600 hover:to-pink-700 transition-all transform hover:scale-110 hover:-rotate-1 shadow-2xl animate-fadeInUp animation-delay-500 border-2 border-red-400"
@@ -293,6 +334,7 @@ function BattlePage() {
                 <div className="text-lg text-yellow-400 font-semibold mb-6 animate-pulse">
                   Well fought! Both warriors are evenly matched!
                 </div>
+                {aiComparison}
                 <button
                   onClick={handleDashboardRedirect}
                   className="mt-8 px-10 py-4 bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-600 text-white font-bold text-lg rounded-xl hover:from-yellow-600 hover:via-amber-600 hover:to-orange-700 transition-all transform hover:scale-110 shadow-2xl animate-fadeInUp animation-delay-500 border-2 border-yellow-400"
@@ -310,7 +352,7 @@ function BattlePage() {
                 <div className="w-20 h-20 border-4 border-matrix-green border-t-transparent rounded-full animate-spin mx-auto"></div>
               </div>
               <h2 className="text-3xl font-bold text-white mb-4 animate-pulse">
-                Waiting for opponent...
+                {isAIBattle ? "Resolving AI battle..." : "Waiting for opponent..."}
               </h2>
               <p className="text-gray-400 animate-fadeIn animation-delay-300">
                 Calculating battle results. Please hold tight!
@@ -355,6 +397,38 @@ function BattlePage() {
         battleId={battle.battleId}
         roomId={roomId}
       />
+      {isAIBattle && opponent && (
+        <div className={`${(isWaiting || battleNote) ? 'pointer-events-none blur-sm' : ''}`}>
+          <div className="border-b border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm text-slate-200">
+            <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+              <div>
+                <span className="rounded-full border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-cyan-200">
+                  AI Battle
+                </span>
+                <span className="ml-3 text-base font-semibold text-white">{opponent.name}</span>
+                <span className="ml-2 text-slate-300">({opponent.persona})</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-cyan-200/90">
+                <span>Rating {opponent.rating}</span>
+                <span className="rounded-full border border-cyan-300/30 px-3 py-1">{opponent.difficulty}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-b border-cyan-400/10 bg-slate-950/80 px-4 py-4">
+            <div className="mx-auto max-w-7xl">
+              <details className="rounded-2xl border border-cyan-300/15 bg-cyan-400/5 p-4">
+                <summary className="cursor-pointer list-none text-sm font-semibold uppercase tracking-[0.22em] text-cyan-300">
+                  View AI Battle Transparency Guide
+                </summary>
+                <div className="mt-4">
+                  <AITransparencyGuide compact />
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      )}
       <div
         className={`main-container flex h-[calc(100vh-70px)] gap-[2px] bg-transparent overflow-hidden ${(isWaiting || battleNote) ? 'pointer-events-none blur-sm' : ''
           }`}

@@ -49,7 +49,7 @@ const CustomCursor = () => {
           {t.symbol}
         </div>
       ))}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInOut {
           0% { opacity: 0; }
           10% { opacity: 1; }

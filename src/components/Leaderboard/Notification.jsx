@@ -15,7 +15,7 @@ const Notification = ({ message, type }) => {
         {type === 'info' ? <FaInfoCircle /> : <FaCheckCircle />}
         <span>{message}</span>
       </div>
-      <style jsx>{`
+      <style>{`
         @keyframes slideIn {
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
