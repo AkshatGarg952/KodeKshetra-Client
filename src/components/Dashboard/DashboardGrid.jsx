@@ -5,7 +5,6 @@ import JoinRoomModal from './JoinRoomModal';
 import CreateRoomModal from './CreateRoomModal';
 import BadgesModal from './BadgesModal';
 import MatchModal from './MatchModal';
-import AIBattleModal from './AIBattleModal';
 
 function DashboardGrid({ user, badgesData, badgesHeight, showModal, showNotification, generateNewRoomId, activeModal, hideModal, badgesCount }) {
   return (
@@ -37,11 +36,6 @@ function DashboardGrid({ user, badgesData, badgesHeight, showModal, showNotifica
         generateNewRoomId={generateNewRoomId}
       />
       <MatchModal
-        activeModal={activeModal}
-        hideModal={hideModal}
-        showNotification={showNotification}
-      />
-      <AIBattleModal
         activeModal={activeModal}
         hideModal={hideModal}
         showNotification={showNotification}

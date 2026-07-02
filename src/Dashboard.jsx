@@ -46,6 +46,7 @@ function Dashboard() {
       "battleData",
       "isWaiting",
       "battleResultNote",
+      "battleResultDetails",
       "roomId",
     ].forEach((key) => sessionStorage.removeItem(key));
   }, []);
@@ -83,8 +84,29 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`${SERVER_URL}/api/users/getUserDetails/${userId}`);
-        const userDetails = await res.json();
+        const token = sessionStorage.getItem("token");
+        if (!userId || !token) {
+          window.location.href = "/";
+          return;
+        }
+
+        const resWithAuth = token
+          ? await fetch(`${SERVER_URL}/api/users/getUserDetails/${userId}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+          : await fetch(`${SERVER_URL}/api/users/getUserDetails/${userId}`);
+        const userDetails = await resWithAuth.json();
+
+        if (resWithAuth.status === 401 || resWithAuth.status === 403) {
+          sessionStorage.removeItem("userId");
+          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("userEmail");
+          window.location.href = "/";
+          return;
+        }
+
         setBadgesData(userDetails.badgesData);
         setDashboardState((prev) => ({
           ...prev,
@@ -168,6 +190,7 @@ function Dashboard() {
       }
     }));
   };
+
   if (isLoading) {
     return (
       <div className="font-space bg-void-black text-text-primary min-h-screen flex items-center justify-center">
@@ -184,13 +207,22 @@ function Dashboard() {
 
 
   return (
-    <div className="font-space bg-void-black text-text-primary min-h-screen overflow-x-hidden">
+    <div
+      className="font-space text-text-primary min-h-screen overflow-x-hidden"
+      style={{
+        background:
+          'radial-gradient(circle at 15% 25%, rgba(139,0,255,0.1) 0%, transparent 50%), ' +
+          'radial-gradient(circle at 85% 75%, rgba(0,245,255,0.08) 0%, transparent 50%), ' +
+          'radial-gradient(circle at 50% 50%, rgba(50,205,50,0.06) 0%, transparent 50%), ' +
+          '#000000',
+      }}
+    >
       <Cursor />
       {notifications.map((n) => (
         <Notification key={n.id} message={n.message} type={n.type} />
       ))}
       <Navbar showModal={showModal} showNotification={showNotification} />
-      <main className="min-h-screen pt-32 pb-8 bg-[radial-gradient(circle_at_15%_25%,rgba(139,0,255,0.1)_0%,transparent_50%),radial-gradient(circle_at_85%_75%,rgba(0,245,255,0.08)_0%,transparent_50%),radial-gradient(circle_at_50%_50%,rgba(50,205,50,0.06)_0%,transparent_50%),var(--void-black)]">
+      <main className="min-h-screen pt-32 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <ProfileHeader user={dashboardState.currentUser} heatmapData={dashboardState.currentUser.heatmapData} onUpdateProfile={handleUpdateProfile} />
           <DashboardGrid

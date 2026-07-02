@@ -281,28 +281,32 @@ function QuestionPanel({ problem, activeTab, setActiveTab, output }) {
 
   return (
     <div className="question-panel w-1/2 bg-[rgba(26,26,26,0.9)] backdrop-blur-[15px] border border-electric-blue rounded-l-4 rounded-r-0 flex flex-col overflow-hidden shadow-primary relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-[1px] before:bg-gradient-cyber before:opacity-60 max-lg:w-full max-lg:rounded-4 max-lg:m-1 max-lg:h-[40vh]">
-      <div className="tab-buttons flex border-b-2 border-electric-blue bg-gradient-to-br from-deep-black to-charcoal p-5 gap-5 justify-center">
+      <div className="tab-buttons flex border-b border-electric-blue/40 bg-[rgba(13,13,13,0.8)] px-4 pt-3 pb-0 gap-1">
         <button
-          className={`tab-button relative flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold uppercase tracking-wider cursor-pointer transition-all duration-300 border-2 ${
+          className={`relative px-6 py-2.5 text-sm font-semibold tracking-wide transition-all duration-200 rounded-t-lg border-b-2 ${
             activeTab === 'problem'
-              ? 'bg-gradient-fire border-neon-pink shadow-[0_4px_15px_rgba(255,0,64,0.4)] text-void-black'
-              : 'bg-gradient-cyber border-electric-blue shadow-[0_4px_15px_rgba(0,191,255,0.4)] text-void-black'
-          } hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,191,255,0.6)] active:shadow-[0_8px_25px_rgba(255,0,64,0.6)] min-w-[120px] justify-center`}
+              ? 'text-neon-pink border-neon-pink bg-neon-pink/5 shadow-[0_-4px_15px_rgba(255,0,64,0.15)]'
+              : 'text-text-secondary border-transparent hover:text-text-primary hover:bg-white/5'
+          }`}
           onClick={() => setActiveTab('problem')}
         >
-          Problem
-          <div className="btn-glow absolute top-0 left-0 w-full h-full bg-gradient-void opacity-0 transition-opacity duration-300 hover:opacity-20 z-[-1]"></div>
+          <span className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${activeTab === 'problem' ? 'bg-neon-pink shadow-[0_0_8px_rgba(255,0,64,0.8)]' : 'bg-gray-600'}`} />
+            Problem
+          </span>
         </button>
         <button
-          className={`tab-button relative flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold uppercase tracking-wider cursor-pointer transition-all duration-300 border-2 ${
+          className={`relative px-6 py-2.5 text-sm font-semibold tracking-wide transition-all duration-200 rounded-t-lg border-b-2 ${
             activeTab === 'output'
-              ? 'bg-gradient-fire border-neon-pink shadow-[0_4px_15px_rgba(255,0,64,0.4)] text-void-black'
-              : 'bg-gradient-cyber border-electric-blue shadow-[0_4px_15px_rgba(0,191,255,0.4)] text-void-black'
-          } hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,191,255,0.6)] active:shadow-[0_8px_25px_rgba(255,0,64,0.6)] min-w-[120px] justify-center`}
+              ? 'text-cyber-cyan border-cyber-cyan bg-cyber-cyan/5 shadow-[0_-4px_15px_rgba(0,255,255,0.1)]'
+              : 'text-text-secondary border-transparent hover:text-text-primary hover:bg-white/5'
+          }`}
           onClick={() => setActiveTab('output')}
         >
-          Output
-          <div className="btn-glow absolute top-0 left-0 w-full h-full bg-gradient-void opacity-0 transition-opacity duration-300 hover:opacity-20 z-[-1]"></div>
+          <span className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${activeTab === 'output' ? 'bg-cyber-cyan shadow-[0_0_8px_rgba(0,255,255,0.8)]' : 'bg-gray-600'}`} />
+            Output
+          </span>
         </button>
       </div>
       {activeTab === 'problem' ? renderProblemContent() : renderOutputContent()}

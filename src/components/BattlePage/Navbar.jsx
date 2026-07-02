@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom"; // React Router v6+
-import { socket } from "../socket.js"
+import { establishSocketConnection } from "../socket.js"
 
 function Navbar({ addNotification, timeRemaining, battleId, roomId }) {
   const navigate = useNavigate();
@@ -20,7 +20,8 @@ function Navbar({ addNotification, timeRemaining, battleId, roomId }) {
     if (confirmed) {
       addNotification("You have left the battle!", "warning");
       // Emit the event as per your description
-      socket.emit("battleEnded", {
+      const activeSocket = establishSocketConnection();
+      activeSocket?.emit("battleEnded", {
         battleDetails: { battleId }, // add other battleDetails if needed
         userId,
         code: null,

@@ -1,20 +1,22 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faCheckCircle, faCircleNotch, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { establishSocketConnection } from "./components/socket.js";
+import {
+  getStoredMatchmakingQueuedServerNow,
+  persistBattleResult,
+  persistMatchmakingQueuedServerNow,
+} from "./features/battle/sessionStorage.js";
 import "./index.css";
 
-const WaitingPage2 = () => {
+function WaitingPage2() {
   const location = useLocation();
   const navigate = useNavigate();
-  const hasJoinedQueue = useRef(false);
-  const socketRef = useRef(null);
-  const battleStartedRef = useRef(false);
-
-  const { mode, topic, flowType } = location.state || {};
+  const hasNavigatedRef = useRef(false);
+  const { mode, topic } = location.state || {};
+  const initialBattle = location.state?.battle || null;
   const userId = sessionStorage.getItem("userId");
-  const isAIBattle = flowType === 'ai';
 
   useEffect(() => {
     document.querySelector('.main-container')?.classList.add('animate-fadeIn');
@@ -30,7 +32,6 @@ const WaitingPage2 = () => {
       navigate("/dashboard", { replace: true });
       return;
     }
-    socketRef.current = activeSocket;
 
     const handleBattleStart = ({
       question,
@@ -42,9 +43,17 @@ const WaitingPage2 = () => {
       battleEndsAt,
       battleStartedAt,
       battleDurationSeconds,
+      serverNow,
       roomId
     }) => {
-      battleStartedRef.current = true;
+      if (hasNavigatedRef.current) {
+        return;
+      }
+
+      hasNavigatedRef.current = true;
+      persistMatchmakingQueuedServerNow(null);
+      const serverTimeOffsetMs = typeof serverNow === "number" ? serverNow - Date.now() : 0;
+
       navigate("/battlepage", {
         state: {
           battle: {
@@ -57,6 +66,7 @@ const WaitingPage2 = () => {
             battleEndsAt,
             battleStartedAt,
             battleDurationSeconds,
+            serverTimeOffsetMs,
           },
           roomId: roomId || null,
         },
@@ -66,6 +76,7 @@ const WaitingPage2 = () => {
 
     const handleCancelMatchmakingResponse = ({ success, message }) => {
       if (success) {
+        persistMatchmakingQueuedServerNow(null);
         navigate("/dashboard", { replace: true });
       } else {
         alert(message);
@@ -77,77 +88,63 @@ const WaitingPage2 = () => {
       navigate("/dashboard", { replace: true });
     };
 
+    const handleBattleResult = (note) => {
+      const normalizedNote = typeof note === "string" ? note : (note?.result || "");
+      const details = note && typeof note === "object" ? note : null;
+      const battleContext = details?.battleContext || initialBattle;
+      persistMatchmakingQueuedServerNow(null);
+      persistBattleResult(normalizedNote, details);
+      navigate("/battlepage", {
+        state: {
+          battle: battleContext,
+          roomId: null,
+        },
+        replace: true,
+      });
+    };
+
     const handleConnectError = () => {
       alert("Matchmaking connection dropped. Please try joining queue again.");
       navigate("/dashboard", { replace: true });
     };
 
+    const emitJoinQueue = () => {
+      activeSocket.emit("joinQueue", { userId, mode, topic });
+      activeSocket.emit("resumeBattleState", {
+        battleId: null,
+        roomId: null,
+        queuedServerNow: getStoredMatchmakingQueuedServerNow(),
+      });
+    };
+
+    const handleMatchmakingQueued = ({ serverNow }) => {
+      persistMatchmakingQueuedServerNow(serverNow);
+    };
+
     activeSocket.on("battleStart", handleBattleStart);
     activeSocket.on("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
     activeSocket.on("matchmakingError", handleMatchmakingError);
+    activeSocket.on("matchmakingQueued", handleMatchmakingQueued);
+    activeSocket.on("battleResult", handleBattleResult);
     activeSocket.on("connect_error", handleConnectError);
-
-    let aiSafetyTimeoutId = null;
-
-    let onConnectJoin = null;
-    if (!hasJoinedQueue.current) {
-      const emitJoinQueue = () => {
-        if (isAIBattle) {
-          activeSocket.emit("startAIBattle", {
-            userId,
-            mode,
-            topic
-          });
-        } else {
-          activeSocket.emit("joinQueue", { userId, mode, topic });
-        }
-        hasJoinedQueue.current = true;
-      };
-
-      if (activeSocket.connected) {
-        emitJoinQueue();
-      } else {
-        onConnectJoin = emitJoinQueue;
-        activeSocket.once("connect", onConnectJoin);
-      }
-
-      if (isAIBattle) {
-        aiSafetyTimeoutId = setTimeout(() => {
-          if (!battleStartedRef.current) {
-            activeSocket.emit("cancelAIBattleSetup", { userId });
-          }
-          alert("AI battle setup is taking too long. Please try again after confirming the backend services are running.");
-          navigate("/dashboard", { replace: true });
-        }, 20000);
-      }
-    }
+    activeSocket.on("connect", emitJoinQueue);
+    emitJoinQueue();
 
     return () => {
       activeSocket.off("battleStart", handleBattleStart);
       activeSocket.off("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
       activeSocket.off("matchmakingError", handleMatchmakingError);
+      activeSocket.off("matchmakingQueued", handleMatchmakingQueued);
+      activeSocket.off("battleResult", handleBattleResult);
       activeSocket.off("connect_error", handleConnectError);
-      if (onConnectJoin) {
-        activeSocket.off("connect", onConnectJoin);
-      }
-      if (aiSafetyTimeoutId) {
-        clearTimeout(aiSafetyTimeoutId);
-      }
-      if (isAIBattle && !battleStartedRef.current) {
-        activeSocket.emit("cancelAIBattleSetup", { userId });
-      }
+      activeSocket.off("connect", emitJoinQueue);
     };
-  }, [navigate, userId, mode, topic, isAIBattle]);
+  }, [initialBattle, navigate, userId, mode, topic]);
 
   const handleCancel = () => {
-    if (isAIBattle) {
-      socketRef.current?.emit("cancelAIBattleSetup", { userId });
-      navigate("/dashboard", { replace: true });
-      return;
-    }
-
     if (window.confirm('Are you sure you want to cancel matchmaking?')) {
-      socketRef.current?.emit("cancelMatchmaking", { userId, mode, topic });
+      const activeSocket = establishSocketConnection();
+      activeSocket?.emit("cancelMatchmaking", { userId, mode, topic });
     }
   };
 
@@ -178,15 +175,13 @@ const WaitingPage2 = () => {
       <div className="main-container flex-1 flex justify-center items-center p-4 md:p-8 bg-radial-gradients">
         <div className="bg-gray-900/90 backdrop-blur-xl border-2 border-blue-400 rounded-2xl p-4 md:p-8 max-w-xl w-full text-center shadow-2xl animate-fadeIn">
           <h1 className="text-2xl md:text-3xl font-bold text-gradient-cyber mb-6 text-shadow-blue">
-            {isAIBattle ? 'Preparing AI Battle' : 'Matchmaking is in Progress'}
+            Matchmaking is in Progress
           </h1>
           <div className="text-4xl md:text-5xl text-green-400 mb-6 animate-spin animate-neon-flicker">
             <FontAwesomeIcon icon={faSpinner} />
           </div>
           <div className="text-base md:text-lg text-gray-400 mb-8 font-mono">
-            {isAIBattle
-              ? 'HiddenForces is preparing your AI opponent and validating its solve attempt...'
-              : 'Waiting a suitable opponent for you...'}
+            Waiting for a suitable opponent for you...
           </div>
           <div className="bg-black/80 border-2 border-pink-600 rounded-xl p-5 mb-8 shadow-glow-pink">
             <div className="flex items-center gap-3 text-base md:text-lg text-white mb-3">
@@ -195,7 +190,7 @@ const WaitingPage2 = () => {
             </div>
             <div className="flex items-center gap-3 text-base md:text-lg text-white">
               <FontAwesomeIcon icon={faCircleNotch} className="text-xl text-gray-500 animate-pulse" />
-              <span>{isAIBattle ? 'AI Opponent (Solving...)' : 'Opponent (Searching...)'}</span>
+              <span>Opponent (Searching...)</span>
             </div>
           </div>
           <button
@@ -203,13 +198,13 @@ const WaitingPage2 = () => {
             onClick={handleCancel}
           >
             <FontAwesomeIcon icon={faTimesCircle} />
-            {isAIBattle ? 'Back to Dashboard' : 'Cancel Matchmaking'}
+            Cancel Matchmaking
             <div className="btn-glow rounded-xl"></div>
           </button>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default WaitingPage2;

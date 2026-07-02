@@ -60,20 +60,26 @@ function EditorPanel({ onRun, onSubmit, problem, setParentCode, setParentLanguag
         code={code}
         setCode={setCode}
       />
-      <div className="editor-footer flex justify-center items-center gap-5 p-5 bg-gradient-to-br from-deep-black to-charcoal border-t border-neon-green">
+      <div className="editor-footer flex justify-center items-center gap-4 p-4 bg-gradient-to-br from-deep-black to-charcoal border-t border-neon-green">
         <button
           id="runCodeBtn"
-          className="px-4 py-2 bg-cyber-cyan text-black font-semibold rounded-lg hover:bg-cyber-cyan/80 transition"
+          className="group relative flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-bold text-sm text-void-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,245,255,0.5)] active:scale-95 overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #00F5FF 0%, #32CD32 100%)' }}
           onClick={() => onRun(code, language, problem)}
         >
-          <i className="fas fa-play mr-2"></i> Run Code
+          <i className="fas fa-play text-xs"></i>
+          Run Code
+          <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity" style={{ background: 'white' }} />
         </button>
         <button
           id="submitBtn"
-          className="px-4 py-2 bg-electric-purple text-white font-semibold rounded-lg hover:bg-electric-purple/80 transition"
+          className="group relative flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(139,0,255,0.5)] active:scale-95 overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #8B00FF 0%, #FF0040 100%)' }}
           onClick={() => onSubmit(code, language, problem)}
         >
-          <i className="fas fa-paper-plane mr-2"></i> Submit
+          <i className="fas fa-paper-plane text-xs"></i>
+          Submit
+          <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity" style={{ background: 'white' }} />
         </button>
       </div>
     </div>

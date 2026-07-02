@@ -17,11 +17,11 @@ const Leaderboard = () => {
           currentFilter: 1,
           playersPerPage: 10,
           isLoading: false,
-          leaderboardData: [], 
+          leaderboardData: [],
           isNextPage: false,
         };
   });
-  
+
   const [notifications, setNotifications] = useState([]);
 
   const showNotification = useCallback((message, type = 'info') => {
@@ -31,22 +31,31 @@ const Leaderboard = () => {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     }, 3400);
   }, []);
-    
-    useEffect(() => {
+
+  useEffect(() => {
     sessionStorage.setItem("leaderboardState", JSON.stringify(leaderboardState));
   }, [leaderboardState]);
-  
+
   useEffect(() => {
-  return () => {
-    sessionStorage.removeItem("leaderboardState");
-  };
-}, []);
+    return () => {
+      sessionStorage.removeItem("leaderboardState");
+    };
+  }, []);
 
   return (
-    <div className="relative">
+    <div
+      className="relative min-h-screen"
+      style={{
+        background:
+          'radial-gradient(circle at 20% 20%, rgba(124,58,237,0.1) 0%, transparent 50%), ' +
+          'radial-gradient(circle at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 50%), ' +
+          'radial-gradient(circle at 50% 10%, rgba(236,72,153,0.06) 0%, transparent 50%), ' +
+          '#000000',
+      }}
+    >
       <CustomCursor />
       <Navbar showNotification={showNotification} />
-      <main className="min-h-screen pt-32 pb-16 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.1)_0%,transparent_50%),radial-gradient(circle_at_80%_80%,rgba(6,182,212,0.08)_0%,transparent_50%),radial-gradient(circle_at_50%_10%,rgba(236,72,153,0.06)_0%,transparent_50%),var(--void-black)]">
+      <main className="min-h-screen pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <LeaderboardHeader
             leaderboardState={leaderboardState}

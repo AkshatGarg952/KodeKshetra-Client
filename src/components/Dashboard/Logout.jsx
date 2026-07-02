@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { SERVER_URL } from '../../config.js';
+import { disconnectSocket } from '../socket.js';
 
 const LogoutModal = ({ setShowModal, showNotification }) => {
   const closeModal = () => setShowModal(false);
@@ -23,6 +24,7 @@ const LogoutModal = ({ setShowModal, showNotification }) => {
       sessionStorage.removeItem("userId");
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("userEmail");
+      disconnectSocket();
 
       window.location.href = "/";
     } catch (error) {
