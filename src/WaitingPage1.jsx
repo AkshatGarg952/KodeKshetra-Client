@@ -1,7 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner, faCheckCircle, faCircleNotch, faTimesCircle, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+/**
+ * WaitingPage1 — Private Room Waiting Screen
+ *
+ * Shown after the user creates a private battle room and waits for an opponent to join.
+ *
+ * Socket event flow:
+ *   1. On mount:   emits `joinBattleRoom` and `resumeBattleState` so the user re-joins
+ *      the room after a page refresh without losing their slot.
+ *   2. `battleStart`       – Opponent has joined; navigate to /battlepage.
+ *   3. `battleJoinError`   – Room is full or invalid; navigate back to /dashboard.
+ *   4. `battleResult`      – Battle already finalised (e.g. opponent won while this
+ *      user was disconnected); persist result and navigate to /battlepage to show modal.
+ *   5. `connect`           – Socket reconnected; re-emit join events so the server
+ *      remembers this socket.
+ *   6. Cleanup:  all listeners are removed on unmount to prevent memory leaks.
+ */
+import { useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSpinner,
+  faCheckCircle,
+  faCircleNotch,
+  faTimesCircle,
+  faCheck,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import { useNavigate, useLocation } from "react-router-dom";
 import { establishSocketConnection } from "./components/socket.js";
 import { persistBattleResult } from "./features/battle/sessionStorage.js";
 import "./index.css";
@@ -9,20 +32,32 @@ import "./index.css";
 const WaitingPage1 = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  /**
+   * Guard that prevents duplicate navigations when multiple socket events fire
+   * simultaneously (e.g. battleStart + connect both fire on reconnect).
+   * @type {React.MutableRefObject<boolean>}
+   */
   const hasNavigatedRef = useRef(false);
+
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   const { roomId, battle } = location.state || {};
   const userId = sessionStorage.getItem("userId");
 
   useEffect(() => {
-    document.querySelector('.main-container')?.classList.add('animate-fadeIn');
+    document.querySelector(".main-container")?.classList.add("animate-fadeIn");
 
+    // Guard: must have a valid room and authenticated user
     if (!roomId || !userId) {
       navigate("/dashboard", { replace: true });
       return;
     }
 
+    /**
+     * Handles the `battleStart` server event.
+     * Calculates a clock-offset to keep the battle timer in sync with the server.
+     */
     const handleBattleStart = ({
       question,
       battleId,
@@ -33,10 +68,11 @@ const WaitingPage1 = () => {
       battleDurationSeconds,
       battleType,
       serverNow,
-      roomId: activeRoomId
+      roomId: activeRoomId,
     }) => {
       if (hasNavigatedRef.current) return;
       hasNavigatedRef.current = true;
+
       const serverTimeOffsetMs = typeof serverNow === "number" ? serverNow - Date.now() : 0;
 
       navigate("/battlepage", {
@@ -54,14 +90,23 @@ const WaitingPage1 = () => {
           },
           roomId: activeRoomId || roomId,
         },
-        replace: true
+        replace: true,
       });
     };
 
-    const handleBattleJoinError = ({ message }) => {
+    /**
+     * Handles the `battleJoinError` server event.
+     * Sends the user back to the dashboard when the room cannot be joined.
+     */
+    const handleBattleJoinError = () => {
       navigate("/dashboard", { replace: true });
     };
 
+    /**
+     * Handles the `battleResult` server event emitted when the battle was
+     * already resolved (e.g. the user refreshed mid-result screen).
+     * Persists the result and redirects to the battle page to display the modal.
+     */
     const handleBattleResult = (note) => {
       const normalizedNote = typeof note === "string" ? note : (note?.result || "");
       const details = note && typeof note === "object" ? note : null;
@@ -79,6 +124,10 @@ const WaitingPage1 = () => {
       return undefined;
     }
 
+    /**
+     * Emits the join events to the server.
+     * Called both on initial mount and on socket reconnection.
+     */
     const joinRoom = () => {
       activeSocket.emit("joinBattleRoom", { battle, userId, roomId });
       activeSocket.emit("resumeBattleState", {
@@ -93,6 +142,7 @@ const WaitingPage1 = () => {
     activeSocket.on("connect", joinRoom);
     joinRoom();
 
+    // Cleanup: remove all listeners when the component unmounts
     return () => {
       activeSocket.off("battleStart", handleBattleStart);
       activeSocket.off("battleJoinError", handleBattleJoinError);
@@ -101,6 +151,11 @@ const WaitingPage1 = () => {
     };
   }, [battle, navigate, roomId, userId]);
 
+  /**
+   * Confirmed leave handler.
+   * Emits `leaveBattleRoom` so the server cleans up the room state,
+   * then redirects to the dashboard.
+   */
   const handleLeaveConfirmed = () => {
     const activeSocket = establishSocketConnection();
     activeSocket?.emit("leaveBattleRoom", { userId, roomId });
@@ -114,7 +169,7 @@ const WaitingPage1 = () => {
           <span className="text-2xl md:text-[26px] font-extrabold text-gradient-void uppercase tracking-wider z-10">
             KodeKshetra
           </span>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] gradient-void rounded-full opacity-20 blur-xl z-0 animate-logo-glow"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] gradient-void rounded-full opacity-20 blur-xl z-0 animate-logo-glow" />
         </div>
         <div className="flex gap-6 md:gap-8">
           <a href="#home" className="text-gray-400 text-base md:text-lg font-semibold hover:text-cyan-400 transition-colors">
@@ -148,7 +203,7 @@ const WaitingPage1 = () => {
             </div>
           </div>
 
-          {/* Inline leave confirmation */}
+          {/* Inline leave confirmation — avoids browser `confirm()` which blocks the event loop */}
           {!showLeaveConfirm ? (
             <button
               className="cancel-btn relative flex items-center gap-2 mx-auto bg-gradient-fire text-black py-3 px-6 md:px-7 rounded-xl text-sm md:text-base font-bold uppercase tracking-wide border-2 border-pink-600 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
@@ -156,7 +211,7 @@ const WaitingPage1 = () => {
             >
               <FontAwesomeIcon icon={faTimesCircle} />
               Leave Room
-              <div className="btn-glow rounded-xl"></div>
+              <div className="btn-glow rounded-xl" />
             </button>
           ) : (
             <div className="animate-fadeIn">

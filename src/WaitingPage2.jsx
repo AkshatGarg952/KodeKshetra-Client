@@ -1,7 +1,33 @@
-import { useEffect, useRef } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner, faCheckCircle, faCircleNotch, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+/**
+ * WaitingPage2 — Matchmaking Queue Waiting Screen
+ *
+ * Shown after the user clicks "Find Match" from the Dashboard and enters the
+ * public matchmaking queue.
+ *
+ * Socket event flow:
+ *   1. On mount: emits `joinQueue` (queues the user server-side) and
+ *      `resumeBattleState` (detects an already-matched battle after a refresh).
+ *   2. `matchmakingQueued`         – Server acknowledged the queue entry; persist
+ *      the server timestamp for later `resumeBattleState` lookups.
+ *   3. `battleStart`               – A match was found; navigate to /battlepage.
+ *   4. `cancelMatchmakingResponse` – Server confirmed cancellation; navigate to /dashboard.
+ *   5. `matchmakingError`          – Error entering the queue; alert and redirect.
+ *   6. `battleResult`              – Rare edge case: battle already resolved (e.g.
+ *      user refreshed right as the battle ended); persist result and redirect.
+ *   7. `connect_error`             – Socket failed to connect; redirect to dashboard.
+ *   8. `connect`                   – Socket reconnected; re-emit `joinQueue` to
+ *      stay in the queue across brief disconnects.
+ *   9. Cleanup: all listeners are removed on unmount.
+ */
+import { useEffect, useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSpinner,
+  faCheckCircle,
+  faCircleNotch,
+  faTimesCircle,
+} from "@fortawesome/free-solid-svg-icons";
+import { useNavigate, useLocation } from "react-router-dom";
 import { establishSocketConnection } from "./components/socket.js";
 import {
   getStoredMatchmakingQueuedServerNow,
@@ -13,14 +39,22 @@ import "./index.css";
 function WaitingPage2() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  /**
+   * Guard that prevents duplicate navigations when multiple socket events fire
+   * simultaneously (e.g. battleStart + connect both fire on reconnect).
+   * @type {React.MutableRefObject<boolean>}
+   */
   const hasNavigatedRef = useRef(false);
+
   const { mode, topic } = location.state || {};
   const initialBattle = location.state?.battle || null;
   const userId = sessionStorage.getItem("userId");
 
   useEffect(() => {
-    document.querySelector('.main-container')?.classList.add('animate-fadeIn');
+    document.querySelector(".main-container")?.classList.add("animate-fadeIn");
 
+    // Guard: must have an authenticated user with a selected mode and topic
     if (!userId || !mode || !topic) {
       navigate("/dashboard", { replace: true });
       return;
@@ -33,6 +67,10 @@ function WaitingPage2() {
       return;
     }
 
+    /**
+     * Handles the `battleStart` event emitted by the server when a match is found.
+     * Computes the server-client clock offset and navigates to the battle page.
+     */
     const handleBattleStart = ({
       question,
       battleId,
@@ -44,14 +82,12 @@ function WaitingPage2() {
       battleStartedAt,
       battleDurationSeconds,
       serverNow,
-      roomId
+      roomId,
     }) => {
-      if (hasNavigatedRef.current) {
-        return;
-      }
-
+      if (hasNavigatedRef.current) return;
       hasNavigatedRef.current = true;
       persistMatchmakingQueuedServerNow(null);
+
       const serverTimeOffsetMs = typeof serverNow === "number" ? serverNow - Date.now() : 0;
 
       navigate("/battlepage", {
@@ -70,10 +106,14 @@ function WaitingPage2() {
           },
           roomId: roomId || null,
         },
-        replace: true
+        replace: true,
       });
     };
 
+    /**
+     * Handles the `cancelMatchmakingResponse` event.
+     * On success, clears the stored queue timestamp and redirects to the dashboard.
+     */
     const handleCancelMatchmakingResponse = ({ success, message }) => {
       if (success) {
         persistMatchmakingQueuedServerNow(null);
@@ -83,11 +123,18 @@ function WaitingPage2() {
       }
     };
 
+    /**
+     * Handles the `matchmakingError` event when the server cannot queue the user.
+     */
     const handleMatchmakingError = ({ message }) => {
       alert(message || "Unable to join matchmaking right now.");
       navigate("/dashboard", { replace: true });
     };
 
+    /**
+     * Handles the `battleResult` event for edge cases where the battle resolved
+     * while the user was on this waiting screen (e.g. an instant timeout).
+     */
     const handleBattleResult = (note) => {
       const normalizedNote = typeof note === "string" ? note : (note?.result || "");
       const details = note && typeof note === "object" ? note : null;
@@ -95,19 +142,24 @@ function WaitingPage2() {
       persistMatchmakingQueuedServerNow(null);
       persistBattleResult(normalizedNote, details);
       navigate("/battlepage", {
-        state: {
-          battle: battleContext,
-          roomId: null,
-        },
+        state: { battle: battleContext, roomId: null },
         replace: true,
       });
     };
 
+    /**
+     * Handles socket transport errors.
+     */
     const handleConnectError = () => {
       alert("Matchmaking connection dropped. Please try joining queue again.");
       navigate("/dashboard", { replace: true });
     };
 
+    /**
+     * Emits queue-entry events.
+     * Also sends `resumeBattleState` so the server can push an already-started
+     * battle if the user refreshed during queue wait or just after match-found.
+     */
     const emitJoinQueue = () => {
       activeSocket.emit("joinQueue", { userId, mode, topic });
       activeSocket.emit("resumeBattleState", {
@@ -117,6 +169,9 @@ function WaitingPage2() {
       });
     };
 
+    /**
+     * Persists the server-side queue entry timestamp for reliable resume detection.
+     */
     const handleMatchmakingQueued = ({ serverNow }) => {
       persistMatchmakingQueuedServerNow(serverNow);
     };
@@ -130,6 +185,7 @@ function WaitingPage2() {
     activeSocket.on("connect", emitJoinQueue);
     emitJoinQueue();
 
+    // Cleanup: remove all listeners when the component unmounts
     return () => {
       activeSocket.off("battleStart", handleBattleStart);
       activeSocket.off("cancelMatchmakingResponse", handleCancelMatchmakingResponse);
@@ -141,8 +197,12 @@ function WaitingPage2() {
     };
   }, [initialBattle, navigate, userId, mode, topic]);
 
+  /**
+   * Emits `cancelMatchmaking` to remove the user from the server queue.
+   * The server will respond with `cancelMatchmakingResponse`.
+   */
   const handleCancel = () => {
-    if (window.confirm('Are you sure you want to cancel matchmaking?')) {
+    if (window.confirm("Are you sure you want to cancel matchmaking?")) {
       const activeSocket = establishSocketConnection();
       activeSocket?.emit("cancelMatchmaking", { userId, mode, topic });
     }
@@ -156,7 +216,7 @@ function WaitingPage2() {
           <span className="text-2xl md:text-[26px] font-extrabold text-gradient-void uppercase tracking-wider z-10">
             KodeKshetra
           </span>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] gradient-void rounded-full opacity-20 blur-xl z-0 animate-logo-glow"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] gradient-void rounded-full opacity-20 blur-xl z-0 animate-logo-glow" />
         </div>
         <div className="flex gap-6 md:gap-8">
           <a href="#home" className="text-gray-400 text-base md:text-lg font-semibold hover:text-cyan-400 hover:text-shadow-cyan transition-colors">
@@ -199,7 +259,7 @@ function WaitingPage2() {
           >
             <FontAwesomeIcon icon={faTimesCircle} />
             Cancel Matchmaking
-            <div className="btn-glow rounded-xl"></div>
+            <div className="btn-glow rounded-xl" />
           </button>
         </div>
       </div>
