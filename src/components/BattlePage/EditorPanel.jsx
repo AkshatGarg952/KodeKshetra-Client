@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CodeEditor from './CodeEditor';
+import { getStoredBattleCode, persistBattleCode } from '../../features/battle/sessionStorage.js';
 
 function EditorPanel({ onRun, onSubmit, problem, setParentCode, setParentLanguage }) {
   const [language, setLanguage] = useState('python');
@@ -11,16 +12,12 @@ function EditorPanel({ onRun, onSubmit, problem, setParentCode, setParentLanguag
 
   // Load code from sessionStorage or problem boilerplate on language/problem change
   useEffect(() => {
-    let loadedCode = sessionStorage.getItem(language);
+    let loadedCode = getStoredBattleCode(problem?.problemId, language);
     let finalCode = '';
     if (loadedCode !== null) {
       finalCode = loadedCode;
     } else if (problem?.source === 'leetcode' && problem.boilerplateCode) {
-      if (language === 'cpp') {
-        finalCode = problem.boilerplateCode.cpp.code;
-      } else {
-        finalCode = problem.boilerplateCode[language]?.code || '';
-      }
+      finalCode = problem.boilerplateCode[language]?.code || '';
     } else {
       finalCode = '';
     }
@@ -35,9 +32,9 @@ function EditorPanel({ onRun, onSubmit, problem, setParentCode, setParentLanguag
     if (isInitialLoad.current) {
       isInitialLoad.current = false;
     } else {
-      sessionStorage.setItem(language, code);
+      persistBattleCode(problem?.problemId, language, code);
     }
-  }, [code, language]);
+  }, [code, language, problem?.problemId]);
 
   return (
     <div className="editor-panel w-1/2 bg-[rgba(26,26,26,0.9)] backdrop-blur-[15px] border border-neon-green rounded-r-2xl rounded-l-none flex flex-col overflow-hidden shadow-lg h-full max-lg:w-full max-lg:rounded-2xl max-lg:m-1 max-lg:h-[60vh]">

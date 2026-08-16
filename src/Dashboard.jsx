@@ -6,6 +6,7 @@ import DashboardGrid from './components/Dashboard/DashboardGrid';
 import Cursor from './components/Dashboard/Cursor';
 import Notification from './components/Dashboard/Notification';
 import { ADMIN_EMAIL, SERVER_URL } from './config.js';
+import { clearBattleSession } from './features/battle/sessionStorage.js';
 import './Dashboard.css';
 
 
@@ -38,17 +39,8 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    [
-      "userTimer",
-      "python",
-      "java",
-      "cpp",
-      "battleData",
-      "isWaiting",
-      "battleResultNote",
-      "battleResultDetails",
-      "roomId",
-    ].forEach((key) => sessionStorage.removeItem(key));
+    clearBattleSession();
+    sessionStorage.removeItem("userTimer");
   }, []);
 
 

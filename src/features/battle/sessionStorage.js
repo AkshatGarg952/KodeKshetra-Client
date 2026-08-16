@@ -13,6 +13,7 @@
  * isWaiting                   – "true" while the battle result is being computed server-side
  * battleResultNote            – Outcome string: "won" | "loss" | "draw"
  * battleResultDetails         – Richer resolution payload (player stats, XP, etc.)
+ * battleCode:<problemId>:<lang> – Draft code, one entry per problem/language pair
  */
 
 const SESSION_KEYS = {
@@ -24,6 +25,23 @@ const SESSION_KEYS = {
   battleResultNote: "battleResultNote",
   battleResultDetails: "battleResultDetails",
 };
+
+// Draft code is stored under one key per problem/language pair, so the keys
+// cannot live in SESSION_KEYS. The shared prefix is what makes them findable
+// again in clearBattleSession().
+const BATTLE_CODE_KEY_PREFIX = "battleCode:";
+
+/**
+ * Builds the sessionStorage key holding a player's draft code.
+ * Scoped per problem so switching battles never resurrects code from a
+ * previous problem, and per language so each editor tab keeps its own draft.
+ * @param {string|null|undefined} problemId
+ * @param {string} language
+ * @returns {string}
+ */
+function getBattleCodeKey(problemId, language) {
+  return `${BATTLE_CODE_KEY_PREFIX}${problemId || "default"}:${language}`;
+}
 
 /**
  * Safely parses a JSON string.  Returns `fallback` on any failure.
@@ -181,9 +199,41 @@ export function persistBattleResult(note, details = null) {
 }
 
 /**
- * Clears all battle-related keys from sessionStorage.
+ * Reads the draft code saved for a problem/language pair.
+ * @param {string|null|undefined} problemId
+ * @param {string} language
+ * @returns {string|null} Saved code, or null when nothing is stored.
+ */
+export function getStoredBattleCode(problemId, language) {
+  return sessionStorage.getItem(getBattleCodeKey(problemId, language));
+}
+
+/**
+ * Saves the draft code for a problem/language pair so it survives refreshes
+ * and language switches within the same battle.
+ * @param {string|null|undefined} problemId
+ * @param {string} language
+ * @param {string} code
+ */
+export function persistBattleCode(problemId, language, code) {
+  sessionStorage.setItem(getBattleCodeKey(problemId, language), code);
+}
+
+/**
+ * Clears all battle-related keys from sessionStorage, including every
+ * per-problem draft-code entry.
  * Should be called when the user returns to the dashboard.
  */
 export function clearBattleSession() {
   Object.values(SESSION_KEYS).forEach((key) => sessionStorage.removeItem(key));
+
+  const codeKeys = [];
+  for (let index = 0; index < sessionStorage.length; index += 1) {
+    const key = sessionStorage.key(index);
+    if (key?.startsWith(BATTLE_CODE_KEY_PREFIX)) {
+      codeKeys.push(key);
+    }
+  }
+  // Collected first: removing while iterating would shift the remaining indices.
+  codeKeys.forEach((key) => sessionStorage.removeItem(key));
 }

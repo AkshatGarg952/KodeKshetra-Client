@@ -20,7 +20,7 @@ The frontend client for **KodeKshetra**, a real-time 1v1 coding battle platform.
 ## 🌟 Key Features
 
 - **Real-Time Matchmaking**: Queue up and get matched instantly for a 1v1 duel.
-- **Interactive Code Editor**: In-browser editing with syntax highlighting (Prism.js) for Python, C++, and Java.
+- **Interactive Code Editor**: In-browser editor with line numbers and tab-indent support for Python, C++, and Java. Drafts are kept per problem and language in `sessionStorage`, so a refresh or language switch never loses work.
 - **Dynamic Dashboard**: View user stats, streak info, earned badges, and a GitHub-style 90-day activity heatmap.
 - **Leaderboards**: Track top-performing users dynamically over 24-hour and 7-day windows.
 - **Polished Animations**: Smooth neural-network backdrop on the landing page, fluid transitions, and status-based waiting views.
@@ -33,7 +33,7 @@ The frontend client for **KodeKshetra**, a real-time 1v1 coding battle platform.
 - **Styling**: TailwindCSS & custom CSS transitions
 - **Routing**: React Router DOM (v7)
 - **Real-Time Communication**: Socket.io-client
-- **Code Highlighting**: react-simple-code-editor & Prism.js
+- **Icons**: Font Awesome, React Icons & Lucide
 
 ---
 
@@ -43,11 +43,12 @@ The frontend client for **KodeKshetra**, a real-time 1v1 coding battle platform.
 KodeKshetra-Client/
 ├── src/
 │   ├── components/         # Sub-components (BattlePage, Dashboard, Landpage, Leaderboard)
+│   ├── features/battle/    # Battle sessionStorage helpers (drafts, result, timing)
+│   ├── constants/          # Shared option lists (battle topics)
 │   ├── App.jsx             # Routes and App shell
 │   ├── main.jsx            # Entry point
-│   ├── index.css           # Global CSS and Tailwind directives
-│   ├── ProblemContext.jsx  # Context provider for problem details
-│   └── badgesData.js       # JSON details for gamification badges
+│   ├── config.js           # Reads VITE_* env vars (server URL, admin email)
+│   └── index.css           # Global CSS and Tailwind directives
 ├── tailwind.config.js      # Custom theme colors and extension settings
 └── vercel.json             # Vercel SPA routing redirects configuration
 ```
@@ -67,10 +68,12 @@ KodeKshetra-Client/
    ```
 
 2. **Configure Environment Variables**:
-   Create a `.env` file in the root:
+   Copy `.env.example` to `.env` and fill it in:
    ```env
    VITE_SERVER_URL=http://localhost:5000
+   VITE_ADMIN_EMAIL=
    ```
+   *Vite inlines `VITE_*` values at build time — after changing them, rebuild rather than just restarting.*
 
 3. **Start Development Server**:
    ```bash

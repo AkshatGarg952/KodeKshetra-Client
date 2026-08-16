@@ -52,7 +52,7 @@ function QuestionPanel({ problem, activeTab, setActiveTab, output }) {
     };
 
     // Codeforces rendering (existing code with all features)
-    if (problem.source.toLowerCase() === 'codeforces') {
+    if ((problem.source || '').toLowerCase() === 'codeforces') {
       const formattedDescription = safeFormat(problem.description);
       const formattedInputFormat = safeFormat(problem.inputFormat);
       const formattedOutputFormat = safeFormat(problem.outputFormat);

@@ -23,7 +23,9 @@ function MatchModal({ activeModal, hideModal, showNotification }) {
 
     const randomTopic = options[Math.floor(Math.random() * options.length)];
     const finalTopic = topic === 'random' ? randomTopic.value : topic;
-    const displayTopic = topic === 'random' ? randomTopic.label : topic;
+    const displayTopic = topic === 'random'
+      ? randomTopic.label
+      : (options.find((opt) => opt.value === topic)?.label || topic);
 
     if (userId) {
       hideModal('join-queue-modal');
